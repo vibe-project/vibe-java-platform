@@ -19,15 +19,6 @@ import org.atmosphere.vibe.AbstractServerHttpExchange;
 import org.atmosphere.vibe.Data;
 import org.atmosphere.vibe.HttpStatus;
 import org.atmosphere.vibe.ServerHttpExchange;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-
 import play.libs.F.Callback0;
 import play.libs.F.Function0;
 import play.libs.F.Promise;
@@ -37,6 +28,14 @@ import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.Results.Chunks;
 import play.mvc.Results.StringChunks;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * {@link ServerHttpExchange} for Play 2.
@@ -48,8 +47,8 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     private final Request request;
     private final Response response;
     private boolean aborted;
-    private CountDownLatch written = new CountDownLatch(1);
-    private List<String> buffer = new ArrayList<>();
+    private final CountDownLatch written = new CountDownLatch(1);
+    private final List<String> buffer = new ArrayList<>();
     private HttpStatus status = HttpStatus.OK;
     private Chunks.Out<String> out;
 

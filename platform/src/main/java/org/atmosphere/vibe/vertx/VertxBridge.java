@@ -35,8 +35,8 @@ import org.vertx.java.core.http.impl.WebSocketMatcher.Match;
  */
 public class VertxBridge {
 
-    private Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
-    private Actions<ServerWebSocket> wsActions = new SimpleActions<>();
+    private final Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
+    private final Actions<ServerWebSocket> wsActions = new SimpleActions<>();
 
     public VertxBridge(final HttpServer server, String path) {
         RouteMatcher httpMatcher = new RouteMatcher();

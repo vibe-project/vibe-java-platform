@@ -30,8 +30,8 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
     private boolean closed;
     private boolean readBody;
-    protected Actions<Data> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
-    protected Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Data> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
 

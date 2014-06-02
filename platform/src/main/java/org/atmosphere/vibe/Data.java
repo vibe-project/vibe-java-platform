@@ -22,7 +22,7 @@ package org.atmosphere.vibe;
  */
 public class Data {
 
-    private String data;
+    private final String data;
 
     /**
      * Creates data from a string.

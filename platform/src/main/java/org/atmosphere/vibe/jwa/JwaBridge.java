@@ -21,15 +21,14 @@ import org.atmosphere.vibe.ServerWebSocket;
 import org.atmosphere.vibe.SimpleActions;
 import org.atmosphere.vibe.VoidAction;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpointConfig;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Convenient class to install Java WebSocket API bridge.
@@ -42,7 +41,7 @@ public class JwaBridge {
 
     private final String id = UUID.randomUUID().toString();
     private final ServerEndpointConfig config;
-    private Actions<ServerWebSocket> wsActions = new SimpleActions<>();
+    private final Actions<ServerWebSocket> wsActions = new SimpleActions<>();
 
     public JwaBridge(String path) {
         config = ServerEndpointConfig.Builder.create(BridgeEndpoint.class, path).build();

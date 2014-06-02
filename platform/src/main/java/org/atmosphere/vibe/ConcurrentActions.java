@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ConcurrentActions<T> extends AbstractActions<T> {
 
-    private AtomicBoolean disabled = new AtomicBoolean();
-    private AtomicBoolean fired = new AtomicBoolean();
-    private AtomicReference<T> cached = new AtomicReference<>();
+    private final AtomicBoolean disabled = new AtomicBoolean();
+    private final AtomicBoolean fired = new AtomicBoolean();
+    private final AtomicReference<T> cached = new AtomicReference<>();
 
     public ConcurrentActions() {
         super();

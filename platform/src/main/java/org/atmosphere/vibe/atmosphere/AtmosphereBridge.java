@@ -39,8 +39,8 @@ import java.util.UUID;
  */
 public class AtmosphereBridge {
 
-    private Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
-    private Actions<ServerWebSocket> wsActions = new SimpleActions<>();
+    private final Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
+    private final Actions<ServerWebSocket> wsActions = new SimpleActions<>();
 
     public AtmosphereBridge(ServletContext context, String path) {
         AtmosphereServlet servlet = null;

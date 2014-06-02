@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 public class ServletBridge {
 
-    private Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
+    private final Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
 
     public ServletBridge(ServletContext context, String path) {
         @SuppressWarnings("serial")

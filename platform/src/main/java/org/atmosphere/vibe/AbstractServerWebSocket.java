@@ -27,9 +27,9 @@ import java.nio.ByteBuffer;
  */
 public abstract class AbstractServerWebSocket implements ServerWebSocket {
 
-    protected Actions<Data> messageActions = new SimpleActions<>();
-    protected Actions<Throwable> errorActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
-    protected Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Data> messageActions = new SimpleActions<>();
+    protected final Actions<Throwable> errorActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerWebSocket.class);
     private State state = State.OPEN;
