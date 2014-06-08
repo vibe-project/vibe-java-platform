@@ -8,7 +8,7 @@
     <groupId>org.atmosphere</groupId>
     <artifactId>vibe-platform-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0.Alpha1-SNAPSHOT</version>
+    <version>3.0.0-Alpha1-SNAPSHOT</version>
     <name>vibe platform</name>
     <url>http://atmosphere.github.io/vibe</url>
     <description>vibe platform</description>
