@@ -15,6 +15,7 @@
  */
 package org.atmosphere.vibe.atmosphere;
 
+import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereFramework;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT;
@@ -29,6 +30,7 @@ import org.atmosphere.vibe.SimpleActions;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -66,6 +68,7 @@ public class AtmosphereBridge {
         ServletRegistration.Dynamic reg = context.addServlet("vibe#" + UUID.randomUUID(), servlet);
         reg.setAsyncSupported(true);
         reg.addMapping(path);
+        reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString());
     }
 
     /**
