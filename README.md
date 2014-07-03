@@ -11,3 +11,5 @@
     <dt>D</dt>
     <dd>For example, Servlet, Vert.x. and Netty.</dd>
 </dl>
+
+Please see the [website](http://atmosphere.github.io/vibe/projects/vibe-java-server-platform/) for full documentation. 
