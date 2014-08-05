@@ -14,6 +14,7 @@ import org.atmosphere.cpr.AtmosphereResource;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
@@ -66,6 +67,18 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
     @Override
     protected void stopServer() throws Exception {
         server.stop();
+    }
+
+    @Override
+    @Test
+    @Ignore
+    public void closeAction_by_server() {
+    }
+
+    @Override
+    @Test
+    @Ignore
+    public void closeAction_by_client() {
     }
 
 }
