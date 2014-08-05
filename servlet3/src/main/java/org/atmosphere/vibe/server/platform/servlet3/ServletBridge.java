@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.atmosphere.vibe.server.platform.servlet;
+package org.atmosphere.vibe.server.platform.servlet3;
 
 import java.util.UUID;
 

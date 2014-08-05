@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.atmosphere.vibe.server.platform.vertx;
+package org.atmosphere.vibe.server.platform.vertx2;
 
 import io.netty.buffer.Unpooled;
 

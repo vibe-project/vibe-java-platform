@@ -1,4 +1,4 @@
-package org.atmosphere.vibe.server.platform.atmosphere;
+package org.atmosphere.vibe.server.platform.atmosphere2;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;

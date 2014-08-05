@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.atmosphere.vibe.server.platform.atmosphere;
+package org.atmosphere.vibe.server.platform.servlet3;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,16 +24,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.atmosphere.cpr.AtmosphereRequest;
-import org.atmosphere.cpr.AtmosphereResource;
-import org.atmosphere.cpr.AtmosphereResourceEvent;
-import org.atmosphere.cpr.AtmosphereResourceEventListenerAdapter;
-import org.atmosphere.cpr.AtmosphereResourceImpl;
-import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.vibe.server.platform.AbstractServerHttpExchange;
 import org.atmosphere.vibe.server.platform.Actions;
 import org.atmosphere.vibe.server.platform.Data;
@@ -41,36 +39,37 @@ import org.atmosphere.vibe.server.platform.HttpStatus;
 import org.atmosphere.vibe.server.platform.ServerHttpExchange;
 
 /**
- * {@link ServerHttpExchange} for Atmosphere 2.
+ * {@link ServerHttpExchange} for Servlet 3.
  *
  * @author Donghwan Kim
  */
-public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
+public class ServletServerHttpExchange extends AbstractServerHttpExchange {
 
-    private final AtmosphereResource resource;
-    private final AtmosphereResponse response;
-    private final AtmosphereRequest request;
-    
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
 
-    public AtmosphereServerHttpExchange(AtmosphereResource resource) {
-        this.resource = resource.suspend();
-        // Prevent IllegalStateException when the connection gets closed.
-        this.response = AtmosphereResourceImpl.class.cast(resource).getResponse(false);
-        this.request = AtmosphereResourceImpl.class.cast(resource).getRequest(false);
-        
-        resource.addEventListener(new AtmosphereResourceEventListenerAdapter() {
+    public ServletServerHttpExchange(HttpServletRequest request, HttpServletResponse response) {
+        this.request = request;
+        this.response = response;
+        AsyncContext async = request.startAsync();
+        async.setTimeout(0);
+        async.addListener(new AsyncListener() {
             @Override
-            public void onResume(AtmosphereResourceEvent event) {
+            public void onStartAsync(AsyncEvent event) throws IOException {
+            }
+
+            @Override
+            public void onTimeout(AsyncEvent event) throws IOException {
                 closeActions.fire();
             }
 
             @Override
-            public void onDisconnect(AtmosphereResourceEvent event) {
+            public void onError(AsyncEvent event) throws IOException {
                 closeActions.fire();
             }
 
             @Override
-            public void onClose(AtmosphereResourceEvent event) {
+            public void onComplete(AsyncEvent event) throws IOException {
                 closeActions.fire();
             }
         });
@@ -100,7 +99,6 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
         return headerNames;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<String> requestHeaders(String name) {
         return Collections.list(request.getHeaders(name));
@@ -108,19 +106,18 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void readBody() {
-        HttpServletRequest hRequest = request;
         final ServletInputStream input;
         try {
-            input = hRequest.getInputStream();
+            input = request.getInputStream();
         } catch (IOException e) {
             throw new RuntimeException();
         }
         // HTTP 1.1 says that the default charset is ISO-8859-1
         // http://www.w3.org/International/O-HTTP-charset#charset
-        String charsetName = hRequest.getCharacterEncoding();
+        String charsetName = request.getCharacterEncoding();
         final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
 
-        if (hRequest.getServletContext().getMinorVersion() > 0) {
+        if (request.getServletContext().getMinorVersion() > 0) {
             // 3.1+ asynchronous
             new AsyncBodyReader(input, charset, bodyActions);
         } else {
@@ -146,7 +143,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
         void read() throws IOException {
             int bytesRead = -1;
-            byte buffer[] = new byte[8192];
+            byte buffer[] = new byte[4096];
             while (ready() && (bytesRead = input.read(buffer)) != -1) {
                 String data = new String(buffer, 0, bytesRead, charset);
                 body.append(data);
@@ -213,17 +210,21 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public void doSetResponseHeader(String name, String value) {
+    protected void doSetResponseHeader(String name, String value) {
         response.setHeader(name, value);
     }
 
     @Override
     protected void doWrite(byte[] data, int offset, int length) {
-        response.write(data, offset, length);
+        try {
+            response.getOutputStream().write(data, offset, length);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void doSetStatus(HttpStatus status) {
+    protected void doSetStatus(HttpStatus status) {
         response.setStatus(status.code());
     }
 
@@ -240,19 +241,19 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void doClose() {
-        resource.resume();
-        try {
-            resource.close();
-        } catch (IOException e) {
-        }
+        request.getAsyncContext().complete();
     }
 
     /**
-     * {@link AtmosphereResource} is available.
+     * {@link HttpServletRequest} and {@link HttpServletResponse} are available.
      */
     @Override
     public <T> T unwrap(Class<T> clazz) {
-        return AtmosphereResource.class.isAssignableFrom(clazz) ? clazz.cast(resource) : null;
+        return HttpServletRequest.class.isAssignableFrom(clazz) ?
+                clazz.cast(request) :
+                HttpServletResponse.class.isAssignableFrom(clazz) ?
+                        clazz.cast(response) :
+                        null;
     }
 
 }
