@@ -6,7 +6,7 @@
         <version>7</version>
     </parent>
     <groupId>org.atmosphere</groupId>
-    <artifactId>vibe-platform-parent</artifactId>
+    <artifactId>vibe-server-platform-parent</artifactId>
     <packaging>pom</packaging>
     <version>3.0.0-Alpha1-SNAPSHOT</version>
     <name>Vibe Java Server Platform Parent</name>
@@ -19,7 +19,7 @@
         <module>servlet3</module>
         <module>test</module>
         <module>vertx2</module>
-        <module>vibe-platform</module>
+        <module>server-platform</module>
     </modules>
     <licenses>
         <license>
@@ -29,9 +29,9 @@
         </license>
     </licenses>
     <scm>
-        <url>http://github.com/Atmosphere/vibe-platform</url>
-        <connection>scm:git:git@github.com:Atmosphere/vibe-platform.git</connection>
-        <developerConnection>scm:git:git@github.com:Atmosphere/vibe-platform.git</developerConnection>
+        <url>http://github.com/Atmosphere/vibe-java-server-platform</url>
+        <connection>scm:git:git@github.com:Atmosphere/vibe-java-server-platform.git</connection>
+        <developerConnection>scm:git:git@github.com:Atmosphere/vibe-java-server-platform.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -48,7 +48,7 @@
     </developers>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Atmosphere/vibe-platform/issues</url>
+        <url>https://github.com/Atmosphere/vibe-java-server-platform/issues</url>
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,12 +60,12 @@
         <dependencies>
             <dependency>
                 <groupId>org.atmosphere</groupId>
-                <artifactId>vibe-platform</artifactId>
+                <artifactId>vibe-server-platform</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.atmosphere</groupId>
-                <artifactId>vibe-platform-test</artifactId>
+                <artifactId>vibe-server-platform-test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -161,14 +161,6 @@
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-source</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <bottom><![CDATA[Copyright ${project.inceptionYear}, <a href="https://atmosphere.github.io/vibe">The Vibe Project</a>]]></bottom>
                     <packagesheader>vibe</packagesheader>
