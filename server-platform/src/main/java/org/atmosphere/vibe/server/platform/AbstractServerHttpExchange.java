@@ -15,6 +15,7 @@
  */
 package org.atmosphere.vibe.server.platform;
 
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,13 +91,13 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     }
 
     @Override
-    public ServerHttpExchange write(byte[] data, int offset, int length) {
-        logger.trace("{} sends a text chunk {}", this, data);
-        doWrite(data, offset, length);
+    public ServerHttpExchange write(ByteBuffer byteBuffer) {
+        logger.trace("{} sends a text chunk {}", this, byteBuffer);
+        doWrite(byteBuffer);
         return this;
     }
 
-    protected abstract void doWrite(byte[] data, int offset, int length);
+    protected abstract void doWrite(ByteBuffer byteBuffer);
 
     protected abstract void doWrite(String data);
 

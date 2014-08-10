@@ -15,6 +15,7 @@
  */
 package org.atmosphere.vibe.server.platform;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
@@ -82,7 +83,7 @@ public interface ServerHttpExchange extends Wrapper {
     /**
      * Writes a byte body to the response body.
      */
-    ServerHttpExchange write(byte[] data, int offset, int length);
+    ServerHttpExchange write(ByteBuffer byteBuffer);
 
     /**
      * Closes the response. Each exchange must be finished with this method when

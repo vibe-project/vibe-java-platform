@@ -16,6 +16,7 @@
 package org.atmosphere.vibe.server.platform.play2;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -131,13 +132,13 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public void doSetStatus(HttpStatus status) {
+    protected void doSetStatus(HttpStatus status) {
         throwIfWritten();
         this.status = status;
     }
 
     @Override
-    public void doSetResponseHeader(String name, String value) {
+    protected void doSetResponseHeader(String name, String value) {
         throwIfWritten();
         // 'content-type' doesn't work. It must be 'Content-Type'. 
         // TODO file an issue to Play
@@ -148,11 +149,12 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doWrite(byte[] data, int offset, int length) {
-        // TODO: https://github.com/Atmosphere/vibe/issues/23
+    protected void doWrite(ByteBuffer byteBuffer) {
+        // TODO: https://github.com/Atmosphere/vibe-java-server-platform/issues/4
         // TODO: We need the char encoding
         try {
-            doWrite(new String(data, offset, length, "UTF-8"));
+            byte[] b = byteBuffer.array();
+            doWrite(new String(b, 0, b.length, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

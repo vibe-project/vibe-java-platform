@@ -15,8 +15,7 @@
  */
 package org.atmosphere.vibe.server.platform.vertx2;
 
-import io.netty.buffer.Unpooled;
-
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
@@ -79,17 +78,17 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public void doSetResponseHeader(String name, String value) {
+    protected void doSetResponseHeader(String name, String value) {
         request.response().putHeader(name, value);
     }
 
     @Override
-    protected void doWrite(byte[] data, int offset, int length) {
-        request.response().write(new Buffer(Unpooled.wrappedBuffer(data, offset, length)));
+    protected void doWrite(ByteBuffer byteBuffer) {
+        request.response().write(new Buffer().setBytes(0, byteBuffer));
     }
 
     @Override
-    public void doSetStatus(HttpStatus status) {
+    protected void doSetStatus(HttpStatus status) {
         request.response().setStatusCode(status.code()).setStatusMessage(status.reason());
     }
 

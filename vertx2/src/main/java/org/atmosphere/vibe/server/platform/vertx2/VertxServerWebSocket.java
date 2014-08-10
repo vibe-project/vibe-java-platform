@@ -78,7 +78,7 @@ public class VertxServerWebSocket extends AbstractServerWebSocket {
     }
 
     @Override
-    public void doSend(ByteBuffer byteBuffer) {
+    protected void doSend(ByteBuffer byteBuffer) {
         socket.writeBinaryFrame(new Buffer().setBytes(0, byteBuffer));
     }
 

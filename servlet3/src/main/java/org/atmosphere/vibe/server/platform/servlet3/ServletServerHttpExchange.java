@@ -17,6 +17,7 @@ package org.atmosphere.vibe.server.platform.servlet3;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -215,9 +216,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doWrite(byte[] data, int offset, int length) {
+    protected void doWrite(ByteBuffer byteBuffer) {
         try {
-            response.getOutputStream().write(data, offset, length);
+            byte[] b = byteBuffer.array();
+            response.getOutputStream().write(b, 0, b.length);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

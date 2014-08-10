@@ -17,6 +17,7 @@ package org.atmosphere.vibe.server.platform.atmosphere2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -213,17 +214,22 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public void doSetResponseHeader(String name, String value) {
+    protected void doSetResponseHeader(String name, String value) {
         response.setHeader(name, value);
     }
 
     @Override
-    protected void doWrite(byte[] data, int offset, int length) {
-        response.write(data, offset, length);
+    protected void doWrite(ByteBuffer byteBuffer) {
+        try {
+            byte[] b = byteBuffer.array();
+            resource.getResponse().getOutputStream().write(b, 0, b.length);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void doSetStatus(HttpStatus status) {
+    protected void doSetStatus(HttpStatus status) {
         response.setStatus(status.code());
     }
 
