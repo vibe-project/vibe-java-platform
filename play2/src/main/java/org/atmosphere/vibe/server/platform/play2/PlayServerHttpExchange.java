@@ -140,8 +140,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     @Override
     protected void doSetResponseHeader(String name, String value) {
         throwIfWritten();
-        // 'content-type' doesn't work. It must be 'Content-Type'. 
-        // TODO file an issue to Play
+        // https://github.com/playframework/playframework/issues/2726
         if (name.equalsIgnoreCase(Response.CONTENT_TYPE)) {
             name = Response.CONTENT_TYPE;
         }
@@ -153,8 +152,9 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
         // TODO: https://github.com/Atmosphere/vibe-java-server-platform/issues/4
         // TODO: We need the char encoding
         try {
-            byte[] b = byteBuffer.array();
-            doWrite(new String(b, 0, b.length, "UTF-8"));
+            byte[] bytes = new byte[byteBuffer.remaining()];
+            byteBuffer.get(bytes);
+            doWrite(new String(bytes, 0, bytes.length, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

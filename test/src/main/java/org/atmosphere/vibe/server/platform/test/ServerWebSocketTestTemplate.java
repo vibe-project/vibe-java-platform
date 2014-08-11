@@ -157,7 +157,7 @@ public abstract class ServerWebSocketTestTemplate {
         .serverAction(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
-                ws.send(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+                ws.send(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }).asReadOnlyBuffer());
             }
         })
         .connect();

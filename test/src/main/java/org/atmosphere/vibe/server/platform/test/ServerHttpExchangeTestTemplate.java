@@ -239,7 +239,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.write(ByteBuffer.wrap(new byte[] { 0x00 }))
+                http.write(ByteBuffer.wrap(new byte[] { 0x00 }).asReadOnlyBuffer())
                 .write(ByteBuffer.wrap(new byte[] { 0x01 }))
                 .write(ByteBuffer.wrap(new byte[] { 0x02 }))
                 .close();

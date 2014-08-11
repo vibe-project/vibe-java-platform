@@ -68,10 +68,11 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     protected void doSend(ByteBuffer byteBuffer) {
-        // https://github.com/Atmosphere/vibe/issues/23
+        // TODO: https://github.com/Atmosphere/vibe-java-server-platform/issues/4
         try {
-            byte[] b = byteBuffer.array();
-            out.write(new String(b, 0, b.length, "UTF-8"));
+            byte[] bytes = new byte[byteBuffer.remaining()];
+            byteBuffer.get(bytes);
+            out.write(new String(bytes, 0, bytes.length, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

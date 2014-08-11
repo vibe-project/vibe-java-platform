@@ -219,9 +219,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     @Override
     protected void doWrite(ByteBuffer byteBuffer) {
         try {
-            byte[] b = byteBuffer.array();
+            byte[] bytes = new byte[byteBuffer.remaining()];
+            byteBuffer.get(bytes);
             OutputStream outputStream = response.getOutputStream();
-            outputStream.write(b);
+            outputStream.write(bytes);
             outputStream.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
