@@ -73,16 +73,4 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
     @Ignore
     public void send_binary() {}
 
-    @Override
-    @Test
-    @Ignore
-    public void closeAction_by_server() {
-    }
-
-    @Override
-    @Test
-    @Ignore
-    public void closeAction_by_client() {
-    }
-
 }
