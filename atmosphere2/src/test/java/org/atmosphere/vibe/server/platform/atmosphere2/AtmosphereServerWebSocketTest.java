@@ -67,6 +67,11 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
     protected void stopServer() throws Exception {
         server.stop();
     }
+    
+    @Override
+    @Test
+    @Ignore
+    public void send_binary() {}
 
     @Override
     @Test

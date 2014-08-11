@@ -16,6 +16,7 @@
 package org.atmosphere.vibe.server.platform.atmosphere2;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 
@@ -96,7 +97,9 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
     protected void doSend(ByteBuffer byteBuffer) {
         try {
             byte[] b = byteBuffer.array();
-            resource.getResponse().getOutputStream().write(b, 0, b.length);
+            OutputStream outputStream = resource.getResponse().getOutputStream();
+            outputStream.write(b);
+            outputStream.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

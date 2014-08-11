@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThat;
 
 import java.net.ServerSocket;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.atmosphere.vibe.server.platform.Action;
@@ -127,7 +128,7 @@ public abstract class ServerWebSocketTestTemplate {
     }
 
     @Test
-    public void send() {
+    public void send_text() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
             public void onWebSocketText(String message) {
@@ -139,6 +140,24 @@ public abstract class ServerWebSocketTestTemplate {
             @Override
             public void on(ServerWebSocket ws) {
                 ws.send("A Will Remains in the Ashes");
+            }
+        })
+        .connect();
+    }
+
+    @Test
+    public void send_binary() {
+        performer.clientListener(new WebSocketAdapter() {
+            @Override
+            public void onWebSocketBinary(byte[] payload, int offset, int len) {
+                assertThat(payload, is(new byte[] { 0x00, 0x01, 0x02 }));
+                performer.start();
+            }
+        })
+        .serverAction(new Action<ServerWebSocket>() {
+            @Override
+            public void on(ServerWebSocket ws) {
+                ws.send(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
             }
         })
         .connect();

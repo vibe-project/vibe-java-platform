@@ -208,7 +208,7 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void write() {
+    public void write_text() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
@@ -228,6 +228,36 @@ public abstract class ServerHttpExchangeTestTemplate {
             @Override
             public void onSuccess(Response response) {
                 assertThat(chunks, contains("X", "Y", "Z"));
+                performer.start();
+            }
+        })
+        .send();
+    }
+
+    @Test
+    public void write_binary() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(ServerHttpExchange http) {
+                http.write(ByteBuffer.wrap(new byte[] { 0x00 }))
+                .write(ByteBuffer.wrap(new byte[] { 0x01 }))
+                .write(ByteBuffer.wrap(new byte[] { 0x02 }))
+                .close();
+            }
+        })
+        .responseListener(new Response.Listener.Adapter() {
+            List<byte[]> chunks = new ArrayList<>();
+
+            @Override
+            public void onContent(Response response, ByteBuffer content) {
+                byte[] bytes = new byte[content.remaining()];
+                content.get(bytes);
+                chunks.add(bytes);
+            }
+
+            @Override
+            public void onSuccess(Response response) {
+                assertThat(chunks, contains(new byte[] { 0x00 }, new byte[] { 0x01 }, new byte[] { 0x02 }));
                 performer.start();
             }
         })
