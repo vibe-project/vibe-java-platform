@@ -13,7 +13,6 @@ import org.atmosphere.vibe.server.platform.test.ServerWebSocketTestTemplate;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
@@ -67,10 +66,5 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
     protected void stopServer() throws Exception {
         server.stop();
     }
-    
-    @Override
-    @Test
-    @Ignore
-    public void send_binary() {}
 
 }

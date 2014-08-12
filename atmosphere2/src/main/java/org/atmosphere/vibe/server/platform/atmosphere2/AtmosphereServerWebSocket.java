@@ -95,6 +95,7 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     protected void doSend(ByteBuffer byteBuffer) {
+        resource.forceBinaryWrite(true);
         try {
             byte[] bytes = new byte[byteBuffer.remaining()];
             byteBuffer.get(bytes);
