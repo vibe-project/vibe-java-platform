@@ -6,7 +6,6 @@ import static org.junit.Assert.assertThat;
 import org.atmosphere.vibe.server.platform.Action;
 import org.atmosphere.vibe.server.platform.ServerHttpExchange;
 import org.atmosphere.vibe.server.platform.test.ServerHttpExchangeTestTemplate;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
@@ -43,12 +42,6 @@ public class VertxServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
             }
         })
         .send();
-    }
-
-    @Override
-    @Test
-    @Ignore
-    public void closeAction_by_server() {
     }
 
 }
