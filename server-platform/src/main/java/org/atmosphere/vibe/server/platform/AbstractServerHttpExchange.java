@@ -54,8 +54,8 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange bodyAction(Action<Data> action) {
         if (!readBody) {
-            readBody();
             readBody = true;
+            readBody();
         }
         bodyActions.add(action);
         return this;
