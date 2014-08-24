@@ -117,6 +117,11 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     public ServerHttpExchange close(String data) {
         return write(data).close();
     }
+    
+    @Override
+    public ServerHttpExchange close(ByteBuffer data) {
+        return write(data).close();
+    }
 
     @Override
     public ServerHttpExchange setStatus(HttpStatus status) {

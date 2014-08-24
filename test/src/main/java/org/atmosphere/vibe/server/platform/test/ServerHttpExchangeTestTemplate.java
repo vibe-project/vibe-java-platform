@@ -282,7 +282,7 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void close_with_data() {
+    public void close_with_text_data() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
@@ -302,6 +302,32 @@ public abstract class ServerHttpExchangeTestTemplate {
             @Override
             public void onSuccess(Response response) {
                 assertThat(body, is("Out of existence"));
+                performer.start();
+            }
+        })
+        .send();
+    }
+
+    @Test
+    public void close_with_binary_data() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(ServerHttpExchange http) {
+                http.close(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+            }
+        })
+        .responseListener(new Response.Listener.Adapter() {
+            byte[] body;
+
+            @Override
+            public void onContent(Response response, ByteBuffer content) {
+                body = new byte[content.remaining()];
+                content.get(body);
+            }
+
+            @Override
+            public void onSuccess(Response response) {
+                assertThat(body, is(new byte[] { 0x00, 0x01, 0x02 }));
                 performer.start();
             }
         })

@@ -97,6 +97,11 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange close(String data);
 
     /**
+     * Writes a byte to the response body and close the response.
+     */
+    ServerHttpExchange close(ByteBuffer byteBuffer);
+
+    /**
      * Sets the HTTP status for the response.
      */
     ServerHttpExchange setStatus(HttpStatus status);
