@@ -68,7 +68,7 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     protected void doSend(ByteBuffer byteBuffer) {
-        // TODO: https://github.com/Atmosphere/vibe-java-server-platform/issues/4
+        // TODO: https://github.com/vibe-project/vibe-java-server-platform/issues/4
         try {
             byte[] bytes = new byte[byteBuffer.remaining()];
             byteBuffer.get(bytes);

@@ -149,7 +149,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void doWrite(ByteBuffer byteBuffer) {
-        // TODO: https://github.com/Atmosphere/vibe-java-server-platform/issues/4
+        // TODO: https://github.com/vibe-project/vibe-java-server-platform/issues/4
         // TODO: We need the char encoding
         try {
             byte[] bytes = new byte[byteBuffer.remaining()];
