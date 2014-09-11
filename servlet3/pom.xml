@@ -2,19 +2,19 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.atmosphere</groupId>
-        <artifactId>vibe-server-platform-parent</artifactId>
+        <artifactId>vibe-platform-parent</artifactId>
         <version>3.0.0-Alpha1-SNAPSHOT</version>
     </parent>
-    <artifactId>vibe-server-platform-servlet3</artifactId>
+    <artifactId>vibe-platform-server-servlet3</artifactId>
     <name>Servlet 3 Bridge</name>
     <dependencies>
         <dependency>
             <groupId>org.atmosphere</groupId>
-            <artifactId>vibe-server-platform</artifactId>
+            <artifactId>vibe-platform-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
-            <artifactId>vibe-server-platform-test</artifactId>
+            <artifactId>vibe-platform-test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -2,15 +2,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.atmosphere</groupId>
-        <artifactId>vibe-server-platform-parent</artifactId>
+        <artifactId>vibe-platform-parent</artifactId>
         <version>3.0.0-Alpha1-SNAPSHOT</version>
     </parent>
-    <artifactId>vibe-server-platform-test</artifactId>
+    <artifactId>vibe-platform-test</artifactId>
     <name>Tests for Bridge</name>
     <dependencies>
         <dependency>
             <groupId>org.atmosphere</groupId>
-            <artifactId>vibe-server-platform</artifactId>
+            <artifactId>vibe-platform-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

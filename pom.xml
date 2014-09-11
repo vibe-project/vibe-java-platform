@@ -6,10 +6,10 @@
         <version>7</version>
     </parent>
     <groupId>org.atmosphere</groupId>
-    <artifactId>vibe-server-platform-parent</artifactId>
+    <artifactId>vibe-platform-parent</artifactId>
     <packaging>pom</packaging>
     <version>3.0.0-Alpha1-SNAPSHOT</version>
-    <name>Vibe Java Server Platform Parent</name>
+    <name>Vibe Java Platform Parent</name>
     <url>http://atmosphere.github.io/vibe</url>
     <inceptionYear>2014</inceptionYear>
     <modules>
@@ -19,7 +19,7 @@
         <module>servlet3</module>
         <module>test</module>
         <module>vertx2</module>
-        <module>server-platform</module>
+        <module>server</module>
     </modules>
     <licenses>
         <license>
@@ -29,9 +29,9 @@
         </license>
     </licenses>
     <scm>
-        <url>http://github.com/vibe-project/vibe-java-server-platform</url>
-        <connection>scm:git:git@github.com:vibe-project/vibe-java-server-platform.git</connection>
-        <developerConnection>scm:git:git@github.com:vibe-project/vibe-java-server-platform.git</developerConnection>
+        <url>http://github.com/vibe-project/vibe-java-platform</url>
+        <connection>scm:git:git@github.com:vibe-project/vibe-java-platform.git</connection>
+        <developerConnection>scm:git:git@github.com:vibe-project/vibe-java-platform.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -48,7 +48,7 @@
     </developers>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/vibe-project/vibe-java-server-platform/issues</url>
+        <url>https://github.com/vibe-project/vibe-java-platform/issues</url>
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -61,12 +61,12 @@
         <dependencies>
             <dependency>
                 <groupId>org.atmosphere</groupId>
-                <artifactId>vibe-server-platform</artifactId>
+                <artifactId>vibe-platform-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.atmosphere</groupId>
-                <artifactId>vibe-server-platform-test</artifactId>
+                <artifactId>vibe-platform-test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>

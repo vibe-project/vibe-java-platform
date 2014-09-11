@@ -4,7 +4,7 @@
             <pattern>%d{HH:mm:ss.SSS} %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="org.atmosphere.vibe.server.platform.jwa1" level="TRACE" />
+    <logger name="org.atmosphere.vibe.platform.server.jwa1" level="TRACE" />
     <root>
         <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
