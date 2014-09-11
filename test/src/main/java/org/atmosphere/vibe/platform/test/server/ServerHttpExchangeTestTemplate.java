@@ -122,15 +122,15 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void requestHeader() {
+    public void header() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                assertThat(http.requestHeaderNames(), either(hasItems("a", "b")).or(hasItems("A", "B")));
-                assertThat(http.requestHeader("A"), is("A"));
-                assertThat(http.requestHeader("B"), is("B1"));
-                assertThat(http.requestHeaders("A"), contains("A"));
-                assertThat(http.requestHeaders("B"), contains("B1", "B2"));
+                assertThat(http.headerNames(), either(hasItems("a", "b")).or(hasItems("A", "B")));
+                assertThat(http.header("A"), is("A"));
+                assertThat(http.header("B"), is("B1"));
+                assertThat(http.headers("A"), contains("A"));
+                assertThat(http.headers("B"), contains("B1", "B2"));
                 performer.start();
             }
         })
@@ -187,11 +187,11 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void setResponseHeader() {
+    public void setHeader() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.setResponseHeader("A", "A").setResponseHeader("B", Arrays.asList("B1", "B2")).close();
+                http.setHeader("A", "A").setHeader("B", Arrays.asList("B1", "B2")).close();
             }
         })
         .responseListener(new Response.Listener.Adapter() {

@@ -51,18 +51,18 @@ public interface ServerHttpExchange extends Wrapper {
      * {@link Set} is case-sensitive. When iterating the set unlike getting the
      * header value, you should make it lower-case or upper-case and use it.
      */
-    Set<String> requestHeaderNames();
+    Set<String> headerNames();
 
     /**
      * Returns the first request header associated with the given name.
      */
-    String requestHeader(String name);
+    String header(String name);
 
     /**
      * Returns the request headers associated with the given name or empty list
      * if no header is found.
      */
-    List<String> requestHeaders(String name);
+    List<String> headers(String name);
 
     /**
      * Attaches an action to be called with the whole request body where the
@@ -73,12 +73,12 @@ public interface ServerHttpExchange extends Wrapper {
     /**
      * Sets a response header.
      */
-    ServerHttpExchange setResponseHeader(String name, String value);
+    ServerHttpExchange setHeader(String name, String value);
 
     /**
      * Sets response headers.
      */
-    ServerHttpExchange setResponseHeader(String name, Iterable<String> value);
+    ServerHttpExchange setHeader(String name, Iterable<String> value);
 
     /**
      * Writes a text to the response body.

@@ -52,8 +52,8 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     }
 
     @Override
-    public String requestHeader(String name) {
-        List<String> headers = requestHeaders(name);
+    public String header(String name) {
+        List<String> headers = headers(name);
         return headers != null && headers.size() > 0 ? headers.get(0) : null;
     }
 
@@ -70,24 +70,24 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     protected abstract void readBody();
 
     @Override
-    public final ServerHttpExchange setResponseHeader(String name, Iterable<String> value) {
+    public final ServerHttpExchange setHeader(String name, Iterable<String> value) {
         // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
         Iterator<String> iterator = value.iterator();
         StringBuilder builder = new StringBuilder(iterator.next());
         while (iterator.hasNext()) {
             builder.append(", ").append(iterator.next());
         }
-        return setResponseHeader(name, builder.toString());
+        return setHeader(name, builder.toString());
     }
 
     @Override
-    public ServerHttpExchange setResponseHeader(String name, String value) {
+    public ServerHttpExchange setHeader(String name, String value) {
         logger.trace("{} sets a response header {} to {}", this, name, value);
-        doSetResponseHeader(name, value);
+        doSetHeader(name, value);
         return this;
     }
 
-    protected abstract void doSetResponseHeader(String name, String value);
+    protected abstract void doSetHeader(String name, String value);
 
     @Override
     public ServerHttpExchange write(String data) {

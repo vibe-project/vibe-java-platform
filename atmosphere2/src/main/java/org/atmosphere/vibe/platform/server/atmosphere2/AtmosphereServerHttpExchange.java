@@ -92,7 +92,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public Set<String> requestHeaderNames() {
+    public Set<String> headerNames() {
         Set<String> headerNames = new LinkedHashSet<>();
         Enumeration<String> enumeration = request.getHeaderNames();
         while (enumeration.hasMoreElements()) {
@@ -103,7 +103,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<String> requestHeaders(String name) {
+    public List<String> headers(String name) {
         return Collections.list(request.getHeaders(name));
     }
 
@@ -214,7 +214,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doSetResponseHeader(String name, String value) {
+    protected void doSetHeader(String name, String value) {
         response.setHeader(name, value);
     }
 

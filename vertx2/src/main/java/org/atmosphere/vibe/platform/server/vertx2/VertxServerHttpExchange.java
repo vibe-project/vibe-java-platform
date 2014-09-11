@@ -58,12 +58,12 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public Set<String> requestHeaderNames() {
+    public Set<String> headerNames() {
         return request.headers().names();
     }
 
     @Override
-    public List<String> requestHeaders(String name) {
+    public List<String> headers(String name) {
         return request.headers().getAll(name);
     }
 
@@ -78,7 +78,7 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doSetResponseHeader(String name, String value) {
+    protected void doSetHeader(String name, String value) {
         request.response().putHeader(name, value);
     }
 

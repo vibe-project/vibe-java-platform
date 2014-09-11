@@ -105,12 +105,12 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    public Set<String> requestHeaderNames() {
+    public Set<String> headerNames() {
         return request.headers().keySet();
     }
 
     @Override
-    public List<String> requestHeaders(String name) {
+    public List<String> headers(String name) {
         for (String h : request.headers().keySet()) {
             if (name.toLowerCase().equals(h.toLowerCase())) {
                 return Arrays.asList(request.headers().get(h));
@@ -138,7 +138,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doSetResponseHeader(String name, String value) {
+    protected void doSetHeader(String name, String value) {
         throwIfWritten();
         // https://github.com/playframework/playframework/issues/2726
         if (name.equalsIgnoreCase(Response.CONTENT_TYPE)) {
