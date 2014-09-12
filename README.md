@@ -12,4 +12,4 @@
     <dd>For example, Servlet, Vert.x. and Netty.</dd>
 </dl>
 
-Please see the [website](http://atmosphere.github.io/vibe/projects/vibe-java-platform/) for full documentation. 
+Please see the [website](http://vibe-project.github.io/projects/vibe-java-platform/) for full documentation. 

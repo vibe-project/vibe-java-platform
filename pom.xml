@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <version>3.0.0-Alpha1-SNAPSHOT</version>
     <name>Vibe Java Platform Parent</name>
-    <url>http://atmosphere.github.io/vibe</url>
+    <url>http://vibe-project.github.io</url>
     <inceptionYear>2014</inceptionYear>
     <modules>
         <module>atmosphere2</module>
@@ -177,7 +177,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
                 <configuration>
-                    <bottom><![CDATA[Copyright ${project.inceptionYear}, <a href="https://atmosphere.github.io/vibe">The Vibe Project</a>]]></bottom>
+                    <bottom><![CDATA[Copyright ${project.inceptionYear}, <a href="https://vibe-project.github.io">The Vibe Project</a>]]></bottom>
                     <packagesheader>vibe</packagesheader>
                     <links>
                         <link>http://docs.oracle.com/javaee/7/api/</link>
