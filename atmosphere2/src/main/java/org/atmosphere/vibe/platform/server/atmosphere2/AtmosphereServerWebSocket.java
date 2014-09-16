@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
+import org.atmosphere.cpr.AtmosphereResourceEventListenerAdapter;
 import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
@@ -38,23 +39,24 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
 
     public AtmosphereServerWebSocket(AtmosphereResource resource) {
         this.resource = resource;
+        // Uses AtmosphereResourceEventListener because onClose and onDisconnect
+        // on WebSocketEventListener are not called. It will be fixed in 2.2.2.
+        resource.addEventListener(new AtmosphereResourceEventListenerAdapter() {
+            @Override
+            public void onClose(AtmosphereResourceEvent event) {
+                closeActions.fire();
+            }
+
+            @Override
+            public void onDisconnect(AtmosphereResourceEvent event) {
+                closeActions.fire();
+            }
+        });
         resource.addEventListener(new WebSocketEventListenerAdapter() {
             @SuppressWarnings("rawtypes")
             @Override
             public void onMessage(WebSocketEvent event) {
                 messageActions.fire(new Data(event.message().toString()));
-            }
-
-            @SuppressWarnings("rawtypes")
-            @Override
-            public void onClose(WebSocketEvent event) {
-                closeActions.fire();
-            }
-
-            @SuppressWarnings("rawtypes")
-            @Override
-            public void onDisconnect(WebSocketEvent event) {
-                closeActions.fire();
             }
 
             @Override

@@ -15,8 +15,6 @@
  */
 package org.atmosphere.vibe.platform.server.atmosphere2;
 
-import static org.atmosphere.websocket.WebSocketEventListener.WebSocketEvent.TYPE.CLOSE;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -25,7 +23,6 @@ import javax.servlet.ServletRegistration;
 
 import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereFramework;
-import org.atmosphere.cpr.AtmosphereObjectFactory;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT;
 import org.atmosphere.cpr.AtmosphereServlet;
@@ -35,10 +32,6 @@ import org.atmosphere.vibe.platform.Actions;
 import org.atmosphere.vibe.platform.SimpleActions;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
-import org.atmosphere.websocket.DefaultWebSocketProcessor;
-import org.atmosphere.websocket.WebSocket;
-import org.atmosphere.websocket.WebSocketEventListener;
-import org.atmosphere.websocket.WebSocketProcessor;
 
 /**
  * Convenient class to install Atmosphere bridge.
@@ -66,19 +59,6 @@ public class AtmosphereBridge {
                 }
             }
         });
-        framework.setWebsocketProcessorClassName(VibePlatformWebSocketProcessor.class.getName());
-        framework.objectFactory(new AtmosphereObjectFactory() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public <T, U extends T> T newClassInstance(AtmosphereFramework framework, Class<T> classType, Class<U> defaultType)
-                    throws InstantiationException, IllegalAccessException {
-                // Intercepts WebSocketProcessor's instantiation to provide framework instance
-                if (classType == WebSocketProcessor.class && defaultType == VibePlatformWebSocketProcessor.class) {
-                    return (T) new VibePlatformWebSocketProcessor(framework);
-                }
-                return defaultType.newInstance();
-            }
-        });
 
         // Registers the servlet programmatically
         ServletRegistration.Dynamic reg = context.addServlet("vibe#" + UUID.randomUUID(), servlet);
@@ -103,45 +83,6 @@ public class AtmosphereBridge {
     public AtmosphereBridge websocketAction(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
-    }
-    
-    // Ugly fix for https://github.com/Atmosphere/atmosphere/issues/1623
-    @SuppressWarnings("serial")
-    public static class VibePlatformWebSocketProcessor extends DefaultWebSocketProcessor {
-
-        public VibePlatformWebSocketProcessor(AtmosphereFramework framework) {
-            super(framework);
-        }
-
-        @Override
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        public void executeClose(WebSocket webSocket, int closeCode) {
-            // Notifies listeners first because super.asynchronousProcessor.endRequest empties them
-            boolean isClosedByClient = webSocket.resource() == null ? true : webSocket.resource().getAtmosphereResourceEvent().isClosedByClient();
-            if (!isClosedByClient) {
-                notifyListener(webSocket, new WebSocketEventListener.WebSocketEvent(closeCode, CLOSE, webSocket));
-            }
-            // call super.executeClose for the rest of things
-            super.executeClose(webSocket, closeCode);
-        }
-        
-        @Override
-        public void close(WebSocket webSocket, int closeCode) {
-            boolean done = false;
-            AtmosphereResource resource = webSocket.resource();
-            if (resource != null) {
-                // Intercepts and call executeClose only if this condition which is the case meets
-                if (!resource.getAtmosphereResourceEvent().isClosedByClient() && resource.getAtmosphereResourceEvent().isClosedByApplication() && resource.isCancelled()) {
-                    executeClose(webSocket, closeCode);
-                    done = true;
-                }
-            }
-            // If it's not our case, call super.close
-            if (!done) {
-                super.close(webSocket, closeCode);
-            }
-        }
-        
     }
 
 }
