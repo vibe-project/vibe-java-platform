@@ -5,6 +5,7 @@
         </encoder>
     </appender>
     <logger name="org.atmosphere.vibe.platform.server.servlet3" level="TRACE" />
+    <logger name="org.eclipse.jetty" level="INFO" />
     <root>
         <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
