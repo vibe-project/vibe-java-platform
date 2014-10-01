@@ -61,7 +61,7 @@ public class JwaBridge {
 
     public static class BridgeEndpoint extends Endpoint {
 
-        private Map<String, JwaServerWebSocket> sessions = new ConcurrentHashMap<>();
+        private Map<String, JwaServerWebSocket> webSockets = new ConcurrentHashMap<>();
 
         @Override
         public void onOpen(Session session, EndpointConfig config) {
@@ -70,21 +70,21 @@ public class JwaBridge {
             ws.closeAction(new VoidAction() {
                 @Override
                 public void on() {
-                    sessions.remove(id);
+                    webSockets.remove(id);
                 }
             });
-            sessions.put(id, ws);
+            webSockets.put(id, ws);
             bridges.get(config.getUserProperties().get("bridge.id")).wsActions.fire(ws);
         }
 
         @Override
         public void onClose(Session session, CloseReason closeReason) {
-            sessions.get(session.getId()).closeActions().fire();
+            webSockets.get(session.getId()).closeActions().fire();
         }
 
         @Override
         public void onError(Session session, Throwable thr) {
-            sessions.get(session.getId()).errorActions().fire(thr);
+            webSockets.get(session.getId()).errorActions().fire(thr);
         }
 
     }
