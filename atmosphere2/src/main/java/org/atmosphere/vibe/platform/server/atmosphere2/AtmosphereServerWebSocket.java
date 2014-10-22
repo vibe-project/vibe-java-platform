@@ -51,17 +51,17 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
             public void onDisconnect(AtmosphereResourceEvent event) {
                 closeActions.fire();
             }
+
+            @Override
+            public void onThrowable(AtmosphereResourceEvent event) {
+                errorActions.fire(event.throwable());
+            }
         });
         resource.addEventListener(new WebSocketEventListenerAdapter() {
             @SuppressWarnings("rawtypes")
             @Override
             public void onMessage(WebSocketEvent event) {
                 messageActions.fire(new Data(event.message().toString()));
-            }
-
-            @Override
-            public void onThrowable(AtmosphereResourceEvent event) {
-                errorActions.fire(event.throwable());
             }
         });
     }
@@ -82,7 +82,7 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
             writer.print(data);
             writer.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 
@@ -105,7 +105,7 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
             outputStream.write(bytes);
             outputStream.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 

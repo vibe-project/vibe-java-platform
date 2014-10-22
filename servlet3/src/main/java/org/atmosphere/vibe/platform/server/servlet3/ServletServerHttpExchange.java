@@ -65,13 +65,13 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             }
 
             @Override
-            public void onError(AsyncEvent event) throws IOException {
+            public void onComplete(AsyncEvent event) throws IOException {
                 closeActions.fire();
             }
 
             @Override
-            public void onComplete(AsyncEvent event) throws IOException {
-                closeActions.fire();
+            public void onError(AsyncEvent event) throws IOException {
+                errorActions.fire(event.getThrowable());
             }
         });
     }
@@ -113,29 +113,30 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             // http://www.w3.org/International/O-HTTP-charset#charset
             String charsetName = request.getCharacterEncoding();
             final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
-
             if (request.getServletContext().getMinorVersion() > 0) {
                 // 3.1+ asynchronous
-                new AsyncBodyReader(input, charset, bodyActions);
+                new AsyncBodyReader(input, charset, bodyActions, errorActions);
             } else {
                 // 3.0 synchronous
-                new SyncBodyReader(input, charset, bodyActions);
+                new SyncBodyReader(input, charset, bodyActions, errorActions);
             }
         } catch (IOException e) {
-            throw new RuntimeException();
+            errorActions.fire(e);
         }
     }
 
     private abstract static class BodyReader {
         final ServletInputStream input;
         final Charset charset;
-        final Actions<Data> actions;
+        final Actions<Data> bodyActions;
+        final Actions<Throwable> errorActions;
         final StringBuilder body = new StringBuilder();
 
-        public BodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions) {
+        public BodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
             this.input = input;
             this.charset = charset;
-            this.actions = bodyActions;
+            this.bodyActions = bodyActions;
+            this.errorActions = errorActions;
             start();
         }
 
@@ -143,7 +144,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
 
         void read() throws IOException {
             int bytesRead = -1;
-            byte buffer[] = new byte[4096];
+            byte buffer[] = new byte[8192];
             while (ready() && (bytesRead = input.read(buffer)) != -1) {
                 String data = new String(buffer, 0, bytesRead, charset);
                 body.append(data);
@@ -153,13 +154,13 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
         abstract boolean ready();
 
         void end() {
-            actions.fire(new Data(body.toString()));
+            bodyActions.fire(new Data(body.toString()));
         }
     }
 
     private static class AsyncBodyReader extends BodyReader {
-        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions) {
-            super(input, charset, bodyActions);
+        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
+            super(input, charset, bodyActions, errorActions);
         }
 
         @Override
@@ -177,7 +178,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
 
                 @Override
                 public void onError(Throwable t) {
-                    throw new RuntimeException(t);
+                    errorActions.fire(t);
                 }
             });
         }
@@ -189,8 +190,8 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     private static class SyncBodyReader extends BodyReader {
-        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions) {
-            super(input, charset, bodyActions);
+        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
+            super(input, charset, bodyActions, errorActions);
         }
 
         @Override
@@ -199,7 +200,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
                 read();
                 end();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                errorActions.fire(e);
             }
         }
 
@@ -223,7 +224,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             outputStream.write(bytes);
             outputStream.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 
@@ -239,7 +240,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             writer.print(data);
             writer.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 

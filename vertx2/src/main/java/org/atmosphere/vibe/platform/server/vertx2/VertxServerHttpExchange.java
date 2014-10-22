@@ -27,6 +27,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.HttpServerResponse;
 
 /**
  * {@link ServerHttpExchange} for Vert.x 2.
@@ -36,15 +37,30 @@ import org.vertx.java.core.http.HttpServerRequest;
 public class VertxServerHttpExchange extends AbstractServerHttpExchange {
 
     private final HttpServerRequest request;
+    private final HttpServerResponse response;
 
     public VertxServerHttpExchange(HttpServerRequest request) {
         this.request = request;
-        request.response().setChunked(true).closeHandler(new VoidHandler() {
+        this.response = request.response();
+        request.exceptionHandler(new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable t) {
+                errorActions.fire(t);
+            }
+        });
+        response.exceptionHandler(new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable t) {
+                errorActions.fire(t);
+            }
+        })
+        .closeHandler(new VoidHandler() {
             @Override
             protected void handle() {
                 closeActions.fire();
             }
-        });
+        })
+        .setChunked(true);
     }
 
     @Override
@@ -79,27 +95,27 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void doSetHeader(String name, String value) {
-        request.response().putHeader(name, value);
+        response.putHeader(name, value);
     }
 
     @Override
     protected void doWrite(ByteBuffer byteBuffer) {
-        request.response().write(new Buffer().setBytes(0, byteBuffer));
+        response.write(new Buffer().setBytes(0, byteBuffer));
     }
 
     @Override
     protected void doSetStatus(HttpStatus status) {
-        request.response().setStatusCode(status.code()).setStatusMessage(status.reason());
+        response.setStatusCode(status.code()).setStatusMessage(status.reason());
     }
 
     @Override
     protected void doWrite(String data) {
-        request.response().write(data);
+        response.write(data);
     }
 
     @Override
     protected void doEnd() {
-        request.response().end();
+        response.end();
     }
 
     /**

@@ -72,6 +72,11 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
             public void onClose(AtmosphereResourceEvent event) {
                 closeActions.fire();
             }
+
+            @Override
+            public void onThrowable(AtmosphereResourceEvent event) {
+                errorActions.fire(event.throwable());
+            }
         });
     }
 
@@ -115,26 +120,28 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
             final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
             if (request.getServletContext().getMinorVersion() > 0) {
                 // 3.1+ asynchronous
-                new AsyncBodyReader(input, charset, bodyActions);
+                new AsyncBodyReader(input, charset, bodyActions, errorActions);
             } else {
                 // 3.0 synchronous
-                new SyncBodyReader(input, charset, bodyActions);
+                new SyncBodyReader(input, charset, bodyActions, errorActions);
             }
         } catch (IOException e) {
-            throw new RuntimeException();
+            errorActions.fire(e);
         }
     }
 
     private abstract static class BodyReader {
         final ServletInputStream input;
         final Charset charset;
-        final Actions<Data> actions;
+        final Actions<Data> bodyActions;
+        final Actions<Throwable> errorActions;
         final StringBuilder body = new StringBuilder();
 
-        public BodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions) {
+        public BodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
             this.input = input;
             this.charset = charset;
-            this.actions = bodyActions;
+            this.bodyActions = bodyActions;
+            this.errorActions = errorActions;
             start();
         }
 
@@ -152,13 +159,13 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
         abstract boolean ready();
 
         void end() {
-            actions.fire(new Data(body.toString()));
+            bodyActions.fire(new Data(body.toString()));
         }
     }
 
     private static class AsyncBodyReader extends BodyReader {
-        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions) {
-            super(input, charset, bodyActions);
+        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
+            super(input, charset, bodyActions, errorActions);
         }
 
         @Override
@@ -176,7 +183,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
                 @Override
                 public void onError(Throwable t) {
-                    throw new RuntimeException(t);
+                    errorActions.fire(t);
                 }
             });
         }
@@ -188,8 +195,8 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     private static class SyncBodyReader extends BodyReader {
-        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions) {
-            super(input, charset, bodyActions);
+        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
+            super(input, charset, bodyActions, errorActions);
         }
 
         @Override
@@ -198,7 +205,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
                 read();
                 end();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                errorActions.fire(e);
             }
         }
 
@@ -222,7 +229,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
             outputStream.write(bytes);
             outputStream.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 
@@ -238,7 +245,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
             writer.print(data);
             writer.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 
@@ -248,6 +255,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
         try {
             resource.close();
         } catch (IOException e) {
+            errorActions.fire(e);
         }
     }
 

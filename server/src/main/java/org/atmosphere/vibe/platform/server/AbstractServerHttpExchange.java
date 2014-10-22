@@ -39,14 +39,23 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     private boolean readBody;
     protected final Actions<Data> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Throwable> errorActions = new SimpleActions<>();
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
 
     public AbstractServerHttpExchange() {
+        errorActions.add(new Action<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                logger.trace("{} has received a throwable {}", AbstractServerHttpExchange.this, throwable);
+            }
+        });
         closeActions.add(new VoidAction() {
             @Override
             public void on() {
                 logger.trace("{} has been closed", AbstractServerHttpExchange.this);
+                bodyActions.disable();
+                errorActions.disable();
             }
         });
     }
@@ -148,6 +157,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange closeAction(Action<Void> action) {
         closeActions.add(action);
+        return this;
+    }
+
+    @Override
+    public ServerHttpExchange errorAction(Action<Throwable> action) {
+        errorActions.add(action);
         return this;
     }
 

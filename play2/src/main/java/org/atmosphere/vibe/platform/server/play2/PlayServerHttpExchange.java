@@ -127,7 +127,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     
     private void throwIfWritten() {
         if (written.getCount() == 0) {
-            throw new IllegalStateException("Response has already been written");
+            errorActions.fire(new IllegalStateException("Response has already been written"));
         }
     }
 
@@ -156,7 +156,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
             byteBuffer.get(bytes);
             doWrite(new String(bytes, 0, bytes.length, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 

@@ -196,9 +196,6 @@ public abstract class ServerWebSocketTestTemplate {
         .connect();
     }
 
-    // TODO
-    // How to test errorAction??
-
     @Test
     public void closeAction_by_server() {
         performer.serverAction(new Action<ServerWebSocket>() {
@@ -236,6 +233,11 @@ public abstract class ServerWebSocketTestTemplate {
         })
         .connect();
     }
+
+    // TODO
+    // Now errorAction depends on the underlying platform so that it's not easy
+    // to test. However, with the consistent exception hierarchy, it might be
+    // possible in the future.
 
     protected class Performer {
 

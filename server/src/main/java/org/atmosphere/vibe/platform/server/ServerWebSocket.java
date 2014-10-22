@@ -64,16 +64,17 @@ public interface ServerWebSocket extends Wrapper {
     ServerWebSocket messageAction(Action<Data> action);
 
     /**
-     * Attaches an action to handle error from various things. If an error
-     * occurs, the connection will be closed.
-     */
-    ServerWebSocket errorAction(Action<Throwable> action);
-
-    /**
      * Attaches an action for the close event. If the connection is already
-     * closed, the handler will be executed on addition. After close event, all
+     * closed, the handler will be executed on addition. After this event, all
      * the other event will be disabled.
      */
     ServerWebSocket closeAction(Action<Void> action);
+
+    /**
+     * Attaches an action to handle error from various things. It may or may not
+     * accompany the closure of connection. Its exact behavior is
+     * platform-specific.
+     */
+    ServerWebSocket errorAction(Action<Throwable> action);
 
 }

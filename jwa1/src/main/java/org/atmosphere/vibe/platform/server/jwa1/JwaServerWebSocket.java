@@ -76,7 +76,7 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
         try {
             session.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 
@@ -85,9 +85,10 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
         try {
             semaphore.acquireUninterruptibly();
             session.getAsyncRemote().sendBinary(byteBuffer, new WriteResult(byteBuffer));
-        } catch (IllegalStateException ex) {
+        } catch (IllegalStateException e) {
             // TODO: The message will be losr, need a cache.
             semaphore.release();
+            errorActions.fire(e);
         }
     }
 
@@ -96,9 +97,10 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
         try {
             semaphore.acquireUninterruptibly();
             session.getAsyncRemote().sendText(data, new WriteResult(data));
-        } catch (IllegalStateException ex) {
+        } catch (IllegalStateException e) {
             // TODO: The message will be losr, need a cache.
             semaphore.release();
+            errorActions.fire(e);
         }
     }
 

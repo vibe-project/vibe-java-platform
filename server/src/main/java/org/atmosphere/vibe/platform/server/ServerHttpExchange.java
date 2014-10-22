@@ -113,8 +113,17 @@ public interface ServerHttpExchange extends Wrapper {
 
     /**
      * Attaches an action to be called when both request and response end or the
-     * underlying connection is aborted for some reason like error.
+     * underlying connection is aborted for some reason like an error. If the
+     * connection is already closed, the handler will be executed on addition.
+     * After this event, all the other event will be disabled.
      */
     ServerHttpExchange closeAction(Action<Void> action);
+
+    /**
+     * Attaches an action to be called when this exchange gets an error. It may
+     * or may not accompany the closure of connection. Its exact behavior is
+     * platform-specific.
+     */
+    ServerHttpExchange errorAction(Action<Throwable> action);
 
 }

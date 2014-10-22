@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractServerWebSocket implements ServerWebSocket {
 
     protected final Actions<Data> messageActions = new SimpleActions<>();
-    protected final Actions<Throwable> errorActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Throwable> errorActions = new SimpleActions<>();
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerWebSocket.class);
     private State state = State.OPEN;
@@ -43,7 +43,6 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
             @Override
             public void on(Throwable throwable) {
                 logger.trace("{} has received a throwable {}", AbstractServerWebSocket.this, throwable);
-                close();
             }
         });
         closeActions.add(new Action<Void>() {
@@ -52,6 +51,7 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
                 logger.trace("{} has been closed due to the reason {}", AbstractServerWebSocket.this, reason);
                 state = State.CLOSED;
                 messageActions.disable();
+                errorActions.disable();
             }
         });
     }
@@ -95,14 +95,14 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
     }
 
     @Override
-    public ServerWebSocket errorAction(Action<Throwable> action) {
-        errorActions.add(action);
+    public ServerWebSocket closeAction(Action<Void> action) {
+        closeActions.add(action);
         return this;
     }
 
     @Override
-    public ServerWebSocket closeAction(Action<Void> action) {
-        closeActions.add(action);
+    public ServerWebSocket errorAction(Action<Throwable> action) {
+        errorActions.add(action);
         return this;
     }
 

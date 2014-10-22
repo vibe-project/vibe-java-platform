@@ -74,7 +74,7 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
             byteBuffer.get(bytes);
             out.write(new String(bytes, 0, bytes.length, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            errorActions.fire(e);
         }
     }
 
