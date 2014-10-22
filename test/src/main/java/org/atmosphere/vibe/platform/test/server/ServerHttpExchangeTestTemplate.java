@@ -191,7 +191,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.setHeader("A", "A").setHeader("B", Arrays.asList("B1", "B2")).close();
+                http.setHeader("A", "A").setHeader("B", Arrays.asList("B1", "B2")).end();
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -212,7 +212,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.write("X").write("Y").write("Z").close();
+                http.write("X").write("Y").write("Z").end();
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -242,7 +242,7 @@ public abstract class ServerHttpExchangeTestTemplate {
                 http.write(ByteBuffer.wrap(new byte[] { 0x00 }).asReadOnlyBuffer())
                 .write(ByteBuffer.wrap(new byte[] { 0x01 }))
                 .write(ByteBuffer.wrap(new byte[] { 0x02 }))
-                .close();
+                .end();
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -265,11 +265,11 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void close() {
+    public void end() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.close();
+                http.end();
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -282,11 +282,11 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void close_with_text_data() {
+    public void end_with_text_data() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.close("Out of existence");
+                http.end("Out of existence");
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -309,11 +309,11 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void close_with_binary_data() {
+    public void end_with_binary_data() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.close(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+                http.end(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -339,7 +339,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.setStatus(HttpStatus.NOT_FOUND).close();
+                http.setStatus(HttpStatus.NOT_FOUND).end();
             }
         })
         .responseListener(new Response.Listener.Adapter() {
@@ -353,11 +353,11 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void closeAction_by_server() {
+    public void closeAction_normal() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.close().closeAction(new VoidAction() {
+                http.end().closeAction(new VoidAction() {
                     @Override
                     public void on() {
                         performer.start();
@@ -365,11 +365,21 @@ public abstract class ServerHttpExchangeTestTemplate {
                 });
             }
         })
-        .send();
+        .send(new Action<Request>() {
+            @Override
+            public void on(final Request req) {
+                new Timer(true).schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        req.content(new StringContentProvider("Day 2: The Day Before"));
+                    }
+                }, 1000);
+            }
+        });
     }
 
     @Test
-    public void closeAction_by_client() {
+    public void closeAction_abnormal() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {

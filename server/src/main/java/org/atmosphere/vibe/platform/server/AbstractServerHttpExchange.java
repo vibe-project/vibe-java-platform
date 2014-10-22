@@ -96,37 +96,44 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         return this;
     }
 
+    protected abstract void doWrite(String data);
+
     @Override
     public ServerHttpExchange write(ByteBuffer byteBuffer) {
-        logger.trace("{} sends a text chunk {}", this, byteBuffer);
+        logger.trace("{} sends a binary chunk {}", this, byteBuffer);
         doWrite(byteBuffer);
         return this;
     }
 
     protected abstract void doWrite(ByteBuffer byteBuffer);
 
-    protected abstract void doWrite(String data);
-
     @Override
-    public ServerHttpExchange close() {
+    public ServerHttpExchange end() {
         logger.trace("{} has started to close the connection", this);
         if (!closed) {
             closed = true;
-            doClose();
+            doEnd();
         }
+        // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
+        bodyAction(new Action<Data>() {
+            @Override
+            public void on(Data _) {
+                closeActions.fire();
+            }
+        });
         return this;
     }
 
-    protected abstract void doClose();
+    protected abstract void doEnd();
 
     @Override
-    public ServerHttpExchange close(String data) {
-        return write(data).close();
+    public ServerHttpExchange end(String data) {
+        return write(data).end();
     }
     
     @Override
-    public ServerHttpExchange close(ByteBuffer data) {
-        return write(data).close();
+    public ServerHttpExchange end(ByteBuffer data) {
+        return write(data).end();
     }
 
     @Override

@@ -98,11 +98,8 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doClose() {
+    protected void doEnd() {
         request.response().end();
-        request.response().close();
-        // The close handler is not executed through this way
-        closeActions.fire();
     }
 
     /**

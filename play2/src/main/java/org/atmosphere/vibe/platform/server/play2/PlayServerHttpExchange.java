@@ -171,7 +171,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doClose() {
+    protected void doEnd() {
         if (out == null) {
             written.countDown();
             aborted = true;

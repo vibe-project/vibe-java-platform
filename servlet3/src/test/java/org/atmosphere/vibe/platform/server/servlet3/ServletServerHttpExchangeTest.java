@@ -87,7 +87,6 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
     @Override
     @Test
     @Ignore
-    public void closeAction_by_client() {
-    }
+    public void closeAction_abnormal() {}
 
 }

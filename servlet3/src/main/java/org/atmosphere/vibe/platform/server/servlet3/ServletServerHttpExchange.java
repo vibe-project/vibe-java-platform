@@ -57,8 +57,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
         async.setTimeout(0);
         async.addListener(new AsyncListener() {
             @Override
-            public void onStartAsync(AsyncEvent event) throws IOException {
-            }
+            public void onStartAsync(AsyncEvent event) throws IOException {}
 
             @Override
             public void onTimeout(AsyncEvent event) throws IOException {
@@ -108,23 +107,22 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void readBody() {
-        final ServletInputStream input;
         try {
-            input = request.getInputStream();
+            ServletInputStream input = request.getInputStream();
+            // HTTP 1.1 says that the default charset is ISO-8859-1
+            // http://www.w3.org/International/O-HTTP-charset#charset
+            String charsetName = request.getCharacterEncoding();
+            final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
+
+            if (request.getServletContext().getMinorVersion() > 0) {
+                // 3.1+ asynchronous
+                new AsyncBodyReader(input, charset, bodyActions);
+            } else {
+                // 3.0 synchronous
+                new SyncBodyReader(input, charset, bodyActions);
+            }
         } catch (IOException e) {
             throw new RuntimeException();
-        }
-        // HTTP 1.1 says that the default charset is ISO-8859-1
-        // http://www.w3.org/International/O-HTTP-charset#charset
-        String charsetName = request.getCharacterEncoding();
-        final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
-
-        if (request.getServletContext().getMinorVersion() > 0) {
-            // 3.1+ asynchronous
-            new AsyncBodyReader(input, charset, bodyActions);
-        } else {
-            // 3.0 synchronous
-            new SyncBodyReader(input, charset, bodyActions);
         }
     }
 
@@ -246,7 +244,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doClose() {
+    protected void doEnd() {
         request.getAsyncContext().complete();
     }
 

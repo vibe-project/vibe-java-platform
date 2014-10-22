@@ -91,20 +91,20 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange write(ByteBuffer byteBuffer);
 
     /**
-     * Closes the response. Each exchange must be finished with this method when
-     * done. This method has no side effect if called more than once.
+     * Completes the response. The response must be finished with this method
+     * when done. This method has no side effect if called more than once.
      */
-    ServerHttpExchange close();
+    ServerHttpExchange end();
 
     /**
-     * Writes a string to the response body and close the response.
+     * Writes a string to the response body and completes the response.
      */
-    ServerHttpExchange close(String data);
+    ServerHttpExchange end(String data);
 
     /**
-     * Writes a byte to the response body and close the response.
+     * Writes a byte to the response body and completes the response.
      */
-    ServerHttpExchange close(ByteBuffer byteBuffer);
+    ServerHttpExchange end(ByteBuffer byteBuffer);
 
     /**
      * Sets the HTTP status for the response.
@@ -112,7 +112,8 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange setStatus(HttpStatus status);
 
     /**
-     * Attaches an action to be called on response close.
+     * Attaches an action to be called when both request and response end or the
+     * underlying connection is aborted for some reason like error.
      */
     ServerHttpExchange closeAction(Action<Void> action);
 

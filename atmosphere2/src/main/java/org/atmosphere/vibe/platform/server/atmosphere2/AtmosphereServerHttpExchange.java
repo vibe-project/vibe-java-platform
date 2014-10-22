@@ -28,7 +28,6 @@ import java.util.Set;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
 
 import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
@@ -58,7 +57,6 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
         // Prevent IllegalStateException when the connection gets closed.
         this.response = AtmosphereResourceImpl.class.cast(resource).getResponse(false);
         this.request = AtmosphereResourceImpl.class.cast(resource).getRequest(false);
-        
         resource.addEventListener(new AtmosphereResourceEventListenerAdapter() {
             @Override
             public void onResume(AtmosphereResourceEvent event) {
@@ -109,24 +107,21 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void readBody() {
-        HttpServletRequest hRequest = request;
-        final ServletInputStream input;
         try {
-            input = hRequest.getInputStream();
+            ServletInputStream input = request.getInputStream();
+            // HTTP 1.1 says that the default charset is ISO-8859-1
+            // http://www.w3.org/International/O-HTTP-charset#charset
+            String charsetName = request.getCharacterEncoding();
+            final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
+            if (request.getServletContext().getMinorVersion() > 0) {
+                // 3.1+ asynchronous
+                new AsyncBodyReader(input, charset, bodyActions);
+            } else {
+                // 3.0 synchronous
+                new SyncBodyReader(input, charset, bodyActions);
+            }
         } catch (IOException e) {
             throw new RuntimeException();
-        }
-        // HTTP 1.1 says that the default charset is ISO-8859-1
-        // http://www.w3.org/International/O-HTTP-charset#charset
-        String charsetName = hRequest.getCharacterEncoding();
-        final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
-
-        if (hRequest.getServletContext().getMinorVersion() > 0) {
-            // 3.1+ asynchronous
-            new AsyncBodyReader(input, charset, bodyActions);
-        } else {
-            // 3.0 synchronous
-            new SyncBodyReader(input, charset, bodyActions);
         }
     }
 
@@ -248,7 +243,7 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doClose() {
+    protected void doEnd() {
         resource.resume();
         try {
             resource.close();
