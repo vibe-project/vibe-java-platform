@@ -59,11 +59,6 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
         this.request = AtmosphereResourceImpl.class.cast(resource).getRequest(false);
         resource.addEventListener(new AtmosphereResourceEventListenerAdapter() {
             @Override
-            public void onResume(AtmosphereResourceEvent event) {
-                closeActions.fire();
-            }
-
-            @Override
             public void onDisconnect(AtmosphereResourceEvent event) {
                 closeActions.fire();
             }
@@ -252,11 +247,6 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
     @Override
     protected void doEnd() {
         resource.resume();
-        try {
-            resource.close();
-        } catch (IOException e) {
-            errorActions.fire(e);
-        }
     }
 
     /**

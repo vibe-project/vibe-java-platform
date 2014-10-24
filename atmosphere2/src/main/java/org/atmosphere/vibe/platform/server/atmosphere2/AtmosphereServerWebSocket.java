@@ -88,10 +88,10 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     protected void doClose() {
-        resource.resume();
         try {
             resource.close();
         } catch (IOException e) {
+            errorActions.fire(e);
         }
     }
 

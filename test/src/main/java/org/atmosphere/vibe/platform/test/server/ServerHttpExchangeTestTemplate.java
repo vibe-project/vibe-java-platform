@@ -165,6 +165,28 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
+    public void bodyAction_after_end() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(ServerHttpExchange http) {
+                http.end().bodyAction(new Action<Data>() {
+                    @Override
+                    public void on(Data data) {
+                        assertThat(data.as(String.class), is("A Breath Clad In Happiness"));
+                        performer.start();
+                    }
+                });
+            }
+        })
+        .send(new Action<Request>() {
+            @Override
+            public void on(Request req) {
+                req.content(new StringContentProvider("A Breath Clad In Happiness"));
+            }
+        });
+    }
+
+    @Test
     public void bodyAction_charset() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
@@ -357,7 +379,11 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.end().closeAction(new VoidAction() {
+                http.bodyAction(new Action<Data>() {
+                    @Override
+                    public void on(Data object) {}
+                })
+                .end().closeAction(new VoidAction() {
                     @Override
                     public void on() {
                         performer.start();

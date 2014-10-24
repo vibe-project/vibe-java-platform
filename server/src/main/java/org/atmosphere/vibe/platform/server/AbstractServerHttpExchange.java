@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
-    private boolean closed;
-    private boolean readBody;
+    private boolean read;
+    private boolean ended;
     protected final Actions<Data> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Throwable> errorActions = new SimpleActions<>();
@@ -68,11 +68,21 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
     @Override
     public ServerHttpExchange bodyAction(Action<Data> action) {
-        if (!readBody) {
-            readBody = true;
+        // TODO move to read method https://github.com/vibe-project/vibe-java-platform/issues/12
+        if (!read) {
+            read = true;
             readBody();
         }
         bodyActions.add(action);
+        if (ended) {
+            // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
+            bodyActions.add(new Action<Data>() {
+                @Override
+                public void on(Data object) {
+                    closeActions.fire();
+                }
+            });
+        }
         return this;
     }
 
@@ -119,17 +129,13 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange end() {
         logger.trace("{} has started to close the connection", this);
-        if (!closed) {
-            closed = true;
+        if (!ended) {
+            ended = true;
             doEnd();
-        }
-        // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
-        bodyAction(new Action<Data>() {
-            @Override
-            public void on(Data _) {
+            if (read) {
                 closeActions.fire();
             }
-        });
+        }
         return this;
     }
 
