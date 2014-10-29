@@ -113,7 +113,16 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             // http://www.w3.org/International/O-HTTP-charset#charset
             String charsetName = request.getCharacterEncoding();
             final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
-            if (request.getServletContext().getMinorVersion() > 0) {
+            int version = request.getServletContext().getMinorVersion();
+            // Some implementations returns 0 even though they implement 3.1
+            if (version == 0) {
+                String info = request.getServletContext().getServerInfo();
+                // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448761
+                if (info.startsWith("jetty/9.1") || info.startsWith("jetty/9.2")) {
+                    version = 1;
+                }
+            }
+            if (version > 0) {
                 // 3.1+ asynchronous
                 new AsyncBodyReader(input, charset, bodyActions, errorActions);
             } else {
