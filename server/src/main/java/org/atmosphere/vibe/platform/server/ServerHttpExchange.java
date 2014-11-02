@@ -47,8 +47,7 @@ public interface ServerHttpExchange extends Wrapper {
 
     /**
      * The names of the request headers. HTTP header is not case-sensitive but
-     * {@link Set} is case-sensitive. When iterating the set unlike getting the
-     * header value, you should make it lower-case or upper-case and use it.
+     * {@link Set} is case-sensitive.
      */
     Set<String> headerNames();
 
@@ -62,6 +61,22 @@ public interface ServerHttpExchange extends Wrapper {
      * if no header is found.
      */
     List<String> headers(String name);
+    
+    /**
+     * Reads the request body. The whole body will be passed to event handlers
+     * attached through {@link ServerHttpExchange#bodyAction(Action)}. In the
+     * following cases, this method must be executed after adding body event
+     * handler.
+     * <p />
+     * <ul>
+     * <li>When the response has completed by {@link ServerHttpExchange#end()}</li>
+     * <li>When the underlying platform can't read the request body
+     * asynchronously</li>
+     * </ul>
+     * <p />
+     * This method has no side effect if called more than once.
+     */
+    ServerHttpExchange read();
 
     /**
      * Attaches an action to be called with the whole request body where the
@@ -70,6 +85,11 @@ public interface ServerHttpExchange extends Wrapper {
      * drain memory quickly.
      */
     ServerHttpExchange bodyAction(Action<?> action);
+
+    /**
+     * Sets the HTTP status for the response.
+     */
+    ServerHttpExchange setStatus(HttpStatus status);
 
     /**
      * Sets a response header.
@@ -98,19 +118,23 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange end();
 
     /**
-     * Writes a string to the response body and completes the response.
+     * Writes a string to the response body and completes the response through
+     * {@link ServerHttpExchange#end()}.
      */
     ServerHttpExchange end(String data);
 
     /**
-     * Writes a byte to the response body and completes the response.
+     * Writes a byte to the response body and completes the response through
+     * {@link ServerHttpExchange#end()}.
      */
     ServerHttpExchange end(ByteBuffer byteBuffer);
 
     /**
-     * Sets the HTTP status for the response.
+     * Attaches an action to be called when this exchange gets an error. It may
+     * or may not accompany the closure of connection. Its exact behavior is
+     * platform-specific.
      */
-    ServerHttpExchange setStatus(HttpStatus status);
+    ServerHttpExchange errorAction(Action<Throwable> action);
 
     /**
      * Attaches an action to be called when both request and response end or the
@@ -119,12 +143,5 @@ public interface ServerHttpExchange extends Wrapper {
      * After this event, all the other event will be disabled.
      */
     ServerHttpExchange closeAction(Action<Void> action);
-
-    /**
-     * Attaches an action to be called when this exchange gets an error. It may
-     * or may not accompany the closure of connection. Its exact behavior is
-     * platform-specific.
-     */
-    ServerHttpExchange errorAction(Action<Throwable> action);
 
 }

@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
     protected final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
-    protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Throwable> errorActions = new SimpleActions<>();
+    protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
     private boolean read;
@@ -64,11 +64,9 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         List<String> headers = headers(name);
         return headers != null && headers.size() > 0 ? headers.get(0) : null;
     }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    
     @Override
-    public ServerHttpExchange bodyAction(Action action) {
-        // TODO move to read method https://github.com/vibe-project/vibe-java-platform/issues/12
+    public ServerHttpExchange read() {
         if (!read) {
             read = true;
             String contentType = header("content-type");
@@ -79,17 +77,23 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
             } else {
                 readAsBinary();
             }
+            if (ended) {
+                // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
+                bodyActions.add(new Action<Object>() {
+                    @Override
+                    public void on(Object _) {
+                        closeActions.fire();
+                    }
+                });
+            }
         }
+        return this;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public ServerHttpExchange bodyAction(Action action) {
         bodyActions.add(action);
-        if (ended) {
-            // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
-            bodyActions.add(new Action<Object>() {
-                @Override
-                public void on(Object _) {
-                    closeActions.fire();
-                }
-            });
-        }
         return this;
     }
 
