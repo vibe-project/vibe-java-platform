@@ -15,6 +15,7 @@
  */
 package org.atmosphere.vibe.platform.server.servlet3;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -35,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.atmosphere.vibe.platform.Actions;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -106,46 +106,71 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void readBody() {
+    protected void readAsText() {
+        // HTTP 1.1 says that the default charset is ISO-8859-1
+        // http://www.w3.org/International/O-HTTP-charset#charset
+        String charsetName = request.getCharacterEncoding();
+        final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
         try {
             ServletInputStream input = request.getInputStream();
-            // HTTP 1.1 says that the default charset is ISO-8859-1
-            // http://www.w3.org/International/O-HTTP-charset#charset
-            String charsetName = request.getCharacterEncoding();
-            final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
-            int version = request.getServletContext().getMinorVersion();
-            // Some implementations returns 0 even though they implement 3.1
-            if (version == 0) {
-                String info = request.getServletContext().getServerInfo();
-                // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448761
-                if (info.startsWith("jetty/9.1") || info.startsWith("jetty/9.2")) {
-                    version = 1;
-                }
-            }
+            int version = getServletMinorVersion();
             if (version > 0) {
                 // 3.1+ asynchronous
-                new AsyncBodyReader(input, charset, bodyActions, errorActions);
+                new AsyncBodyReader(input, charset, bodyActions, errorActions, true);
             } else {
                 // 3.0 synchronous
-                new SyncBodyReader(input, charset, bodyActions, errorActions);
+                new SyncBodyReader(input, charset, bodyActions, errorActions, true);
             }
         } catch (IOException e) {
             errorActions.fire(e);
         }
     }
+    
+    @Override
+    protected void readAsBinary() {
+        try {
+            ServletInputStream input = request.getInputStream();
+            int version = getServletMinorVersion();
+            if (version > 0) {
+                // 3.1+ asynchronous
+                new AsyncBodyReader(input, null, bodyActions, errorActions, false);
+            } else {
+                // 3.0 synchronous
+                new SyncBodyReader(input, null, bodyActions, errorActions, false);
+            }
+        } catch (IOException e) {
+            errorActions.fire(e);
+        }
+    }
+    
+    private int getServletMinorVersion() {
+        int version = request.getServletContext().getMinorVersion();
+        // Some implementations returns 0 even though they implement 3.1
+        if (version == 0) {
+            String info = request.getServletContext().getServerInfo();
+            // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448761
+            if (info.startsWith("jetty/9.1") || info.startsWith("jetty/9.2")) {
+                version = 1;
+            }
+        }
+        return version;
+    }
 
     private abstract static class BodyReader {
         final ServletInputStream input;
         final Charset charset;
-        final Actions<Data> bodyActions;
+        final Actions<Object> bodyActions;
         final Actions<Throwable> errorActions;
-        final StringBuilder body = new StringBuilder();
+        final boolean isText;
+        final StringBuilder text = new StringBuilder();
+        final ByteArrayOutputStream binary = new ByteArrayOutputStream();
 
-        public BodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
+        public BodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Throwable> errorActions, boolean isText) {
             this.input = input;
             this.charset = charset;
             this.bodyActions = bodyActions;
             this.errorActions = errorActions;
+            this.isText = isText;
             start();
         }
 
@@ -155,21 +180,29 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             int bytesRead = -1;
             byte buffer[] = new byte[8192];
             while (ready() && (bytesRead = input.read(buffer)) != -1) {
-                String data = new String(buffer, 0, bytesRead, charset);
-                body.append(data);
+                if (isText) {
+                    text.append(new String(buffer, 0, bytesRead, charset));
+                } else {
+                    binary.write(buffer, 0, bytesRead);
+                }
             }
         }
 
         abstract boolean ready();
 
         void end() {
-            bodyActions.fire(new Data(body.toString()));
+            if (isText) {
+                bodyActions.fire(text.toString());
+            } else {
+                bodyActions.fire(ByteBuffer.wrap(binary.toByteArray()));
+
+            }
         }
     }
 
     private static class AsyncBodyReader extends BodyReader {
-        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
-            super(input, charset, bodyActions, errorActions);
+        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Throwable> errorActions, boolean isText) {
+            super(input, charset, bodyActions, errorActions, isText);
         }
 
         @Override
@@ -199,8 +232,8 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     private static class SyncBodyReader extends BodyReader {
-        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Data> bodyActions, Actions<Throwable> errorActions) {
-            super(input, charset, bodyActions, errorActions);
+        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Throwable> errorActions, boolean isText) {
+            super(input, charset, bodyActions, errorActions, isText);
         }
 
         @Override

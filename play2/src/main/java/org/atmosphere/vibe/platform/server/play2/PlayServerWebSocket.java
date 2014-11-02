@@ -15,10 +15,9 @@
  */
 package org.atmosphere.vibe.platform.server.play2;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 
@@ -42,10 +41,12 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
     public PlayServerWebSocket(Request request, In<String> in, Out<String> out) {
         this.request = request;
         this.out = out;
+        // Play at least with Java can't receive both text and binary data
+        // together through a single WebSocket connection
         in.onMessage(new Callback<String>() {
             @Override
             public void invoke(String message) throws Throwable {
-                messageActions.fire(new Data(message));
+                textActions.fire(message);
             }
         });
         in.onClose(new Callback0() {
@@ -67,20 +68,16 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
     }
 
     @Override
-    protected void doSend(ByteBuffer byteBuffer) {
-        // TODO: https://github.com/vibe-project/vibe-java-platform/issues/4
-        try {
-            byte[] bytes = new byte[byteBuffer.remaining()];
-            byteBuffer.get(bytes);
-            out.write(new String(bytes, 0, bytes.length, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            errorActions.fire(e);
-        }
+    protected void doSend(String data) {
+        out.write(data);
     }
 
     @Override
-    protected void doSend(String data) {
-        out.write(data);
+    protected void doSend(ByteBuffer byteBuffer) {
+        // TODO: https://github.com/vibe-project/vibe-java-platform/issues/4
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
+        out.write(new String(bytes, Charset.forName("UTF-8")));
     }
 
     /**

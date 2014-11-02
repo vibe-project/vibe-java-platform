@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -119,10 +118,15 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
         return Collections.<String> emptyList();
     }
 
+    // Play can't read body asynchronously
     @Override
-    protected void readBody() {
-        // Play can't read body asynchronously
-        bodyActions.fire(new Data(request.body().asText()));
+    protected void readAsText() {
+        bodyActions.fire(request.body().asText());
+    }
+    
+    @Override
+    protected void readAsBinary() {
+        bodyActions.fire(ByteBuffer.wrap(request.body().asRaw().asBytes()));
     }
     
     private void throwIfWritten() {

@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -84,11 +83,21 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void readBody() {
+    protected void readAsText() {
         request.bodyHandler(new Handler<Buffer>() {
             @Override
             public void handle(Buffer body) {
-                bodyActions.fire(new Data(body.toString()));
+                bodyActions.fire(body.toString());
+            }
+        });
+    }
+    
+    @Override
+    protected void readAsBinary() {
+        request.bodyHandler(new Handler<Buffer>() {
+            @Override
+            public void handle(Buffer body) {
+                bodyActions.fire(ByteBuffer.wrap(body.getBytes()));
             }
         });
     }

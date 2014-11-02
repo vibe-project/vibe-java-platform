@@ -17,12 +17,13 @@ package org.atmosphere.vibe.platform.server.vertx2;
 
 import java.nio.ByteBuffer;
 
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.http.WebSocketFrame;
+import org.vertx.java.core.http.impl.ws.WebSocketFrameInternal;
 
 /**
  * {@link ServerWebSocket} for Vert.x 2.
@@ -48,10 +49,20 @@ public class VertxServerWebSocket extends AbstractServerWebSocket {
                 errorActions.fire(throwable);
             }
         })
-        .dataHandler(new Handler<Buffer>() {
+        .frameHandler(new Handler<WebSocketFrame>() {
             @Override
-            public void handle(Buffer buffer) {
-                messageActions.fire(new Data(buffer.toString()));
+            public void handle(WebSocketFrame f) {
+                WebSocketFrameInternal frame = (WebSocketFrameInternal) f;
+                switch (frame.type()) {
+                case TEXT:
+                    textActions.fire(frame.textData());
+                    break;
+                case BINARY:
+                    binaryActions.fire(frame.getBinaryData().nioBuffer());
+                    break;
+                default:
+                    break;
+                }
             }
         });
     }

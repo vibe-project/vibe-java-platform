@@ -32,13 +32,13 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 import org.atmosphere.vibe.platform.Action;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.VoidAction;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpMethod;
@@ -143,14 +143,14 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void bodyAction() {
+    public void textAction() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.bodyAction(new Action<Data>() {
+                http.bodyAction(new Action<String>() {
                     @Override
-                    public void on(Data data) {
-                        assertThat(data.as(String.class), is("A Breath Clad In Happiness"));
+                    public void on(String data) {
+                        assertThat(data, is("A Breath Clad In Happiness"));
                         performer.start();
                     }
                 });
@@ -165,14 +165,14 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void bodyAction_after_end() {
+    public void textAction_after_end() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.end().bodyAction(new Action<Data>() {
+                http.end().bodyAction(new Action<String>() {
                     @Override
-                    public void on(Data data) {
-                        assertThat(data.as(String.class), is("A Breath Clad In Happiness"));
+                    public void on(String data) {
+                        assertThat(data, is("A Breath Clad In Happiness"));
                         performer.start();
                     }
                 });
@@ -187,14 +187,14 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void bodyAction_charset() {
+    public void textAction_charset() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.bodyAction(new Action<Data>() {
+                http.bodyAction(new Action<String>() {
                     @Override
-                    public void on(Data data) {
-                        assertThat(data.as(String.class), is("희망을 잃고 쓰러져 가도 언젠가 다시 되돌아온다"));
+                    public void on(String data) {
+                        assertThat(data, is("희망을 잃고 쓰러져 가도 언젠가 다시 되돌아온다"));
                         performer.start();
                     }
                 });
@@ -204,6 +204,50 @@ public abstract class ServerHttpExchangeTestTemplate {
             @Override
             public void on(Request req) {
                 req.content(new StringContentProvider("희망을 잃고 쓰러져 가도 언젠가 다시 되돌아온다"), "text/plain; charset=utf-8");
+            }
+        });
+    }
+
+    @Test
+    public void binaryAction() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(ServerHttpExchange http) {
+                http.bodyAction(new Action<ByteBuffer>() {
+                    @Override
+                    public void on(ByteBuffer data) {
+                        assertThat(data, is(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })));
+                        performer.start();
+                    }
+                });
+            }
+        })
+        .send(new Action<Request>() {
+            @Override
+            public void on(Request req) {
+                req.content(new BytesContentProvider(new byte[] { 0x00, 0x01, 0x02 }));
+            }
+        });
+    }
+
+    @Test
+    public void binaryAction_after_end() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(ServerHttpExchange http) {
+                http.end().bodyAction(new Action<ByteBuffer>() {
+                    @Override
+                    public void on(ByteBuffer data) {
+                        assertThat(data, is(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })));
+                        performer.start();
+                    }
+                });
+            }
+        })
+        .send(new Action<Request>() {
+            @Override
+            public void on(Request req) {
+                req.content(new BytesContentProvider(new byte[] { 0x00, 0x01, 0x02 }));
             }
         });
     }
@@ -379,9 +423,9 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.bodyAction(new Action<Data>() {
+                http.bodyAction(new Action<String>() {
                     @Override
-                    public void on(Data object) {}
+                    public void on(String _) {}
                 })
                 .end().closeAction(new VoidAction() {
                     @Override

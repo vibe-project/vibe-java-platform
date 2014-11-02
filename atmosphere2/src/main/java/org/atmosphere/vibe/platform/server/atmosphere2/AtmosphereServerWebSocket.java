@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.cpr.AtmosphereResourceEventListenerAdapter;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.atmosphere.websocket.WebSocketEventListenerAdapter;
@@ -56,12 +55,20 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
             public void onThrowable(AtmosphereResourceEvent event) {
                 errorActions.fire(event.throwable());
             }
-        });
-        resource.addEventListener(new WebSocketEventListenerAdapter() {
+        })
+        .addEventListener(new WebSocketEventListenerAdapter() {
             @SuppressWarnings("rawtypes")
             @Override
             public void onMessage(WebSocketEvent event) {
-                messageActions.fire(new Data(event.message().toString()));
+                Object message = event.message();
+                if (message instanceof String) {
+                    textActions.fire((String) message);
+                } else if (message instanceof byte[]) {
+                    binaryActions.fire(ByteBuffer.wrap((byte[]) message));
+                } else {
+                    // Just to be sure
+                    errorActions.fire(new IllegalStateException("Message is neither String nor byte[]"));
+                }
             }
         });
     }
@@ -87,15 +94,6 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
     }
 
     @Override
-    protected void doClose() {
-        try {
-            resource.close();
-        } catch (IOException e) {
-            errorActions.fire(e);
-        }
-    }
-
-    @Override
     protected void doSend(ByteBuffer byteBuffer) {
         resource.forceBinaryWrite(true);
         try {
@@ -104,6 +102,15 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
             OutputStream outputStream = resource.getResponse().getOutputStream();
             outputStream.write(bytes);
             outputStream.flush();
+        } catch (IOException e) {
+            errorActions.fire(e);
+        }
+    }
+
+    @Override
+    protected void doClose() {
+        try {
+            resource.close();
         } catch (IOException e) {
             errorActions.fire(e);
         }

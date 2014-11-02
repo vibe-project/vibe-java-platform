@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.atmosphere.vibe.platform.Action;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.Wrapper;
 
@@ -66,9 +65,11 @@ public interface ServerHttpExchange extends Wrapper {
 
     /**
      * Attaches an action to be called with the whole request body where the
-     * request ends. If the body is quite big, it may drain memory quickly.
+     * request ends. The allowed data type is {@link String} for text body and
+     * {@link ByteBuffer} for binary body. If the body is quite big, it may
+     * drain memory quickly.
      */
-    ServerHttpExchange bodyAction(Action<Data> action);
+    ServerHttpExchange bodyAction(Action<?> action);
 
     /**
      * Sets a response header.

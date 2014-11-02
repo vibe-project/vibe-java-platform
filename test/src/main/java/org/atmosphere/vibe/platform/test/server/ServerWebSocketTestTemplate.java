@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import org.atmosphere.vibe.platform.Action;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.VoidAction;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.eclipse.jetty.websocket.api.Session;
@@ -164,7 +163,7 @@ public abstract class ServerWebSocketTestTemplate {
     }
 
     @Test
-    public void messageAction() {
+    public void textAction() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
             public void onWebSocketConnect(Session sess) {
@@ -184,10 +183,10 @@ public abstract class ServerWebSocketTestTemplate {
         .serverAction(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
-                ws.messageAction(new Action<Data>() {
+                ws.textAction(new Action<String>() {
                     @Override
-                    public void on(Data data) {
-                        assertThat(data.as(String.class), is("A road of winds the water builds"));
+                    public void on(String data) {
+                        assertThat(data, is("A road of winds the water builds"));
                         performer.start();
                     }
                 });
@@ -195,6 +194,41 @@ public abstract class ServerWebSocketTestTemplate {
         })
         .connect();
     }
+
+    @Test
+    public void binaryAction() {
+        performer.clientListener(new WebSocketAdapter() {
+            @Override
+            public void onWebSocketConnect(Session sess) {
+                sess.getRemote().sendBytes(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }), new WriteCallback() {
+                    @Override
+                    public void writeSuccess() {
+                        assertThat(true, is(true));
+                    }
+
+                    @Override
+                    public void writeFailed(Throwable x) {
+                        assertThat(true, is(false));
+                    }
+                });
+            }
+        })
+        .serverAction(new Action<ServerWebSocket>() {
+            @Override
+            public void on(ServerWebSocket ws) {
+                ws.binaryAction(new Action<ByteBuffer>() {
+                    @Override
+                    public void on(ByteBuffer data) {
+                        assertThat(data, is(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })));
+                        performer.start();
+                    }
+                });
+            }
+        })
+        .connect();
+    }
+    
+    // TODO test exchanging text & binary data together through a single connection
 
     @Test
     public void closeAction_by_server() {

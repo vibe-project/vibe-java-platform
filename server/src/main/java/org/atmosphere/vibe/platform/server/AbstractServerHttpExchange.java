@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.Actions;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.SimpleActions;
 import org.atmosphere.vibe.platform.VoidAction;
@@ -35,13 +34,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
-    private boolean read;
-    private boolean ended;
-    protected final Actions<Data> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Throwable> errorActions = new SimpleActions<>();
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
+    private boolean read;
+    private boolean ended;
 
     public AbstractServerHttpExchange() {
         errorActions.add(new Action<Throwable>() {
@@ -66,19 +65,27 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         return headers != null && headers.size() > 0 ? headers.get(0) : null;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ServerHttpExchange bodyAction(Action<Data> action) {
+    public ServerHttpExchange bodyAction(Action action) {
         // TODO move to read method https://github.com/vibe-project/vibe-java-platform/issues/12
         if (!read) {
             read = true;
-            readBody();
+            String contentType = header("content-type");
+            // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
+            boolean isText = contentType != null && contentType.startsWith("text/");
+            if (isText) {
+                readAsText();
+            } else {
+                readAsBinary();
+            }
         }
         bodyActions.add(action);
         if (ended) {
             // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
-            bodyActions.add(new Action<Data>() {
+            bodyActions.add(new Action<Object>() {
                 @Override
-                public void on(Data object) {
+                public void on(Object _) {
                     closeActions.fire();
                 }
             });
@@ -86,7 +93,9 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         return this;
     }
 
-    protected abstract void readBody();
+    protected abstract void readAsText();
+
+    protected abstract void readAsBinary();
 
     @Override
     public final ServerHttpExchange setHeader(String name, Iterable<String> value) {

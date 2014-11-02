@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.Actions;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.SimpleActions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +30,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerWebSocket implements ServerWebSocket {
 
-    protected final Actions<Data> messageActions = new SimpleActions<>();
-    protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<String> textActions = new SimpleActions<>();
+    protected final Actions<ByteBuffer> binaryActions = new SimpleActions<>();
     protected final Actions<Throwable> errorActions = new SimpleActions<>();
+    protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerWebSocket.class);
     private State state = State.OPEN;
@@ -50,7 +50,8 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
             public void on(Void reason) {
                 logger.trace("{} has been closed due to the reason {}", AbstractServerWebSocket.this, reason);
                 state = State.CLOSED;
-                messageActions.disable();
+                textActions.disable();
+                binaryActions.disable();
                 errorActions.disable();
             }
         });
@@ -89,8 +90,14 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
     protected abstract void doSend(String data);
 
     @Override
-    public ServerWebSocket messageAction(Action<Data> action) {
-        messageActions.add(action);
+    public ServerWebSocket textAction(Action<String> action) {
+        textActions.add(action);
+        return this;
+    }
+
+    @Override
+    public ServerWebSocket binaryAction(Action<ByteBuffer> action) {
+        binaryActions.add(action);
         return this;
     }
 

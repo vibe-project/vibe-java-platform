@@ -18,7 +18,6 @@ package org.atmosphere.vibe.platform.server;
 import java.nio.ByteBuffer;
 
 import org.atmosphere.vibe.platform.Action;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.Wrapper;
 
 /**
@@ -30,7 +29,7 @@ import org.atmosphere.vibe.platform.Wrapper;
  * @author Donghwan Kim
  * @see <a href="http://www.w3.org/TR/websockets/">The WebSocket API by W3C</a>
  * @see <a href="http://tools.ietf.org/html/rfc6455">RFC6455 - The WebSocket
- * Protocol</a>
+ *      Protocol</a>
  */
 public interface ServerWebSocket extends Wrapper {
 
@@ -46,22 +45,24 @@ public interface ServerWebSocket extends Wrapper {
     ServerWebSocket close();
 
     /**
-     * Sends a text message through the connection.
+     * Sends a text frame through the connection.
      */
     ServerWebSocket send(String data);
 
     /**
-     * Sends bytes message through the connection
-     * @param byteBuffer
+     * Sends a binary frame through the connection.
      */
     ServerWebSocket send(ByteBuffer byteBuffer);
 
     /**
-     * Attaches an action for the message event. The allowed message type is
-     * {@link String} for text messages. If the message is quite big, it may
-     * drain memory quickly.
+     * Attaches an action for the text frame.
      */
-    ServerWebSocket messageAction(Action<Data> action);
+    ServerWebSocket textAction(Action<String> action);
+
+    /**
+     * Attaches an action for the binary frame.
+     */
+    ServerWebSocket binaryAction(Action<ByteBuffer> action);
 
     /**
      * Attaches an action for the close event. If the connection is already
@@ -71,9 +72,8 @@ public interface ServerWebSocket extends Wrapper {
     ServerWebSocket closeAction(Action<Void> action);
 
     /**
-     * Attaches an action to handle error from various things. It may or may not
-     * accompany the closure of connection. Its exact behavior is
-     * platform-specific.
+     * Attaches an action to handle error from various things. Its exact
+     * behavior is platform-specific.
      */
     ServerWebSocket errorAction(Action<Throwable> action);
 

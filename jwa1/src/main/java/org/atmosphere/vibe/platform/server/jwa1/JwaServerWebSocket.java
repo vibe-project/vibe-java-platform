@@ -26,7 +26,6 @@ import javax.websocket.SendResult;
 import javax.websocket.Session;
 
 import org.atmosphere.vibe.platform.Actions;
-import org.atmosphere.vibe.platform.Data;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.slf4j.Logger;
@@ -50,7 +49,13 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
         session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String message) {
-                messageActions.fire(new Data(message));
+                textActions.fire(message);
+            }
+        });
+        session.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
+            @Override
+            public void onMessage(ByteBuffer message) {
+                binaryActions.fire(message);
             }
         });
     }
