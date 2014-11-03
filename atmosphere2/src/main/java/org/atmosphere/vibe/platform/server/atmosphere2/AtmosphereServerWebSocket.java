@@ -84,6 +84,7 @@ public class AtmosphereServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     protected void doSend(String data) {
+        resource.forceBinaryWrite(false);
         try {
             PrintWriter writer = resource.getResponse().getWriter();
             writer.print(data);

@@ -163,6 +163,38 @@ public abstract class ServerWebSocketTestTemplate {
     }
 
     @Test
+    public void send_text_and_binary() {
+        performer.clientListener(new WebSocketAdapter() {
+            boolean done;
+            @Override
+            public void onWebSocketText(String message) {
+                assertThat(message, is("A Will Remains in the Ashes"));
+                if (done) {
+                    performer.start();
+                } else {
+                    done = true;
+                }
+            }
+            @Override
+            public void onWebSocketBinary(byte[] payload, int offset, int len) {
+                assertThat(payload, is(new byte[] { 0x00, 0x01, 0x02 }));
+                if (done) {
+                    performer.start();
+                } else {
+                    done = true;
+                }
+            }
+        })
+        .serverAction(new Action<ServerWebSocket>() {
+            @Override
+            public void on(ServerWebSocket ws) {
+                ws.send("A Will Remains in the Ashes").send(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+            }
+        })
+        .connect();
+    }
+
+    @Test
     public void textAction() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
@@ -227,8 +259,66 @@ public abstract class ServerWebSocketTestTemplate {
         })
         .connect();
     }
-    
-    // TODO test exchanging text & binary data together through a single connection
+
+    @Test
+    public void textAction_and_binaryAction() {
+        performer.clientListener(new WebSocketAdapter() {
+            @Override
+            public void onWebSocketConnect(Session sess) {
+                sess.getRemote().sendString("A road of winds the water builds", new WriteCallback() {
+                    @Override
+                    public void writeSuccess() {
+                        assertThat(true, is(true));
+                    }
+
+                    @Override
+                    public void writeFailed(Throwable x) {
+                        assertThat(true, is(false));
+                    }
+                });
+                sess.getRemote().sendBytes(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }), new WriteCallback() {
+                    @Override
+                    public void writeSuccess() {
+                        assertThat(true, is(true));
+                    }
+
+                    @Override
+                    public void writeFailed(Throwable x) {
+                        assertThat(true, is(false));
+                    }
+                });
+            }
+        })
+        .serverAction(new Action<ServerWebSocket>() {
+            boolean done;
+            @Override
+            public void on(ServerWebSocket ws) {
+                ws.textAction(new Action<String>() {
+                    @Override
+                    public void on(String data) {
+                        assertThat(data, is("A road of winds the water builds"));
+                        if (done) {
+                            performer.start();
+                        } else {
+                            done = true;
+                        }
+                    }
+                })
+                .binaryAction(new Action<ByteBuffer>() {
+                    @Override
+                    public void on(ByteBuffer data) {
+                        assertThat(data, is(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })));
+                        if (done) {
+                            performer.start();
+                        } else {
+                            done = true;
+                        }
+                    }
+                });
+            }
+        })
+        .connect();
+    }
 
     @Test
     public void closeAction_by_server() {
