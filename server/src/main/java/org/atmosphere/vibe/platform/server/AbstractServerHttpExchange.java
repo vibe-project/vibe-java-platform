@@ -15,6 +15,7 @@
  */
 package org.atmosphere.vibe.platform.server;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
@@ -34,15 +35,24 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
-    protected final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    protected final Actions<Object> chunkActions = new SimpleActions<>();
+    protected final Actions<Void> endActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Throwable> errorActions = new SimpleActions<>();
     protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
+    private final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     private boolean read;
+    private boolean readBody;
     private boolean ended;
 
     public AbstractServerHttpExchange() {
+        endActions.add(new VoidAction() {
+            @Override
+            public void on() {
+                logger.trace("{}'s request has ended", AbstractServerHttpExchange.this);
+            }
+        });
         errorActions.add(new Action<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -53,7 +63,9 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
             @Override
             public void on() {
                 logger.trace("{} has been closed", AbstractServerHttpExchange.this);
+                chunkActions.disable();
                 bodyActions.disable();
+                endActions.disable();
                 errorActions.disable();
             }
         });
@@ -69,19 +81,15 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     public ServerHttpExchange read() {
         if (!read) {
             read = true;
-            String contentType = header("content-type");
-            // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
-            boolean isText = contentType != null && contentType.startsWith("text/");
-            if (isText) {
+            if (hasTextBody()) {
                 readAsText();
             } else {
                 readAsBinary();
             }
             if (ended) {
-                // TODO use endAction https://github.com/vibe-project/vibe-java-platform/issues/14
-                bodyActions.add(new Action<Object>() {
+                endActions.add(new VoidAction() {
                     @Override
-                    public void on(Object _) {
+                    public void on() {
                         closeActions.fire();
                     }
                 });
@@ -89,10 +97,64 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         }
         return this;
     }
+    
+    private boolean hasTextBody() {
+        // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
+        String contentType = header("content-type");
+        return contentType != null && contentType.startsWith("text/");
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public ServerHttpExchange chunkAction(Action action) {
+        chunkActions.add(action);
+        return this;
+    }
+    
+    @Override
+    public ServerHttpExchange endAction(Action<Void> action) {
+        endActions.add(action);
+        return this;
+    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public ServerHttpExchange bodyAction(Action action) {
+        if (!readBody) {
+            readBody = true;
+            if (hasTextBody()) {
+                final StringBuilder body = new StringBuilder();
+                chunkActions.add(new Action<Object>() {
+                    @Override
+                    public void on(Object data) {
+                        body.append((String) data);
+                    }
+                });
+                endActions.add(new VoidAction() {
+                    @Override
+                    public void on() {
+                        bodyActions.fire(body.toString());
+                    }
+                });
+            } else {
+                final ByteArrayOutputStream body = new ByteArrayOutputStream();
+                chunkActions.add(new Action<Object>() {
+                    @Override
+                    public void on(Object data) {
+                        ByteBuffer byteBuffer = (ByteBuffer) data;
+                        byte[] bytes = new byte[byteBuffer.remaining()];
+                        byteBuffer.get(bytes);
+                        body.write(bytes, 0, bytes.length);
+                    }
+                });
+                endActions.add(new VoidAction() {
+                    @Override
+                    public void on() {
+                        bodyActions.fire(ByteBuffer.wrap(body.toByteArray()));
+                    }
+                });
+            }
+        }
         bodyActions.add(action);
         return this;
     }
@@ -141,7 +203,7 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
     @Override
     public ServerHttpExchange end() {
-        logger.trace("{} has started to close the connection", this);
+        logger.trace("{} ends the response", this);
         if (!ended) {
             ended = true;
             doEnd();

@@ -121,12 +121,14 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     // Play can't read body asynchronously
     @Override
     protected void readAsText() {
-        bodyActions.fire(request.body().asText());
+        chunkActions.fire(request.body().asText());
+        endActions.fire();
     }
     
     @Override
     protected void readAsBinary() {
-        bodyActions.fire(ByteBuffer.wrap(request.body().asRaw().asBytes()));
+        chunkActions.fire(ByteBuffer.wrap(request.body().asRaw().asBytes()));
+        endActions.fire();
     }
     
     private void throwIfWritten() {

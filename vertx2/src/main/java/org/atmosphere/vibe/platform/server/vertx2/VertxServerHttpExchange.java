@@ -84,20 +84,32 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void readAsText() {
-        request.bodyHandler(new Handler<Buffer>() {
+        request.dataHandler(new Handler<Buffer>() {
             @Override
             public void handle(Buffer body) {
-                bodyActions.fire(body.toString());
+                chunkActions.fire(body.toString());
+            }
+        })
+        .endHandler(new VoidHandler() {
+            @Override
+            protected void handle() {
+                endActions.fire();
             }
         });
     }
     
     @Override
     protected void readAsBinary() {
-        request.bodyHandler(new Handler<Buffer>() {
+        request.dataHandler(new Handler<Buffer>() {
             @Override
             public void handle(Buffer body) {
-                bodyActions.fire(ByteBuffer.wrap(body.getBytes()));
+                chunkActions.fire(ByteBuffer.wrap(body.getBytes()));
+            }
+        })
+        .endHandler(new VoidHandler() {
+            @Override
+            protected void handle() {
+                endActions.fire();
             }
         });
     }

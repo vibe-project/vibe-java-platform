@@ -63,10 +63,10 @@ public interface ServerHttpExchange extends Wrapper {
     List<String> headers(String name);
     
     /**
-     * Reads the request body. The whole body will be passed to event handlers
-     * attached through {@link ServerHttpExchange#bodyAction(Action)}. In the
-     * following cases, this method must be executed after adding body event
-     * handler.
+     * Reads the request body. The read data will be passed to event handlers
+     * attached through {@link ServerHttpExchange#chunkAction(Action)} or
+     * {@link ServerHttpExchange#bodyAction(Action)}. In the following cases,
+     * this method must be executed after adding chunk or body event handler.
      * <p />
      * <ul>
      * <li>When the response has completed by {@link ServerHttpExchange#end()}</li>
@@ -77,12 +77,24 @@ public interface ServerHttpExchange extends Wrapper {
      * This method has no side effect if called more than once.
      */
     ServerHttpExchange read();
+    
+    /**
+     * Attaches an action to be called with a chunk from the request body. The
+     * allowed data type is {@link String} for text body and {@link ByteBuffer}
+     * for binary body.
+     */
+    ServerHttpExchange chunkAction(Action<?> action);
+    
+    /**
+     * Attaches an action to be called when the request is fully read. It's the
+     * end of the request.
+     */
+    ServerHttpExchange endAction(Action<Void> action);
 
     /**
-     * Attaches an action to be called with the whole request body where the
-     * request ends. The allowed data type is {@link String} for text body and
-     * {@link ByteBuffer} for binary body. If the body is quite big, it may
-     * drain memory quickly.
+     * Attaches an action to be called with the whole request body. The allowed
+     * data type is {@link String} for text body and {@link ByteBuffer} for
+     * binary body. If the body is quite big, it may drain memory quickly.
      */
     ServerHttpExchange bodyAction(Action<?> action);
 
@@ -112,8 +124,9 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange write(ByteBuffer byteBuffer);
 
     /**
-     * Completes the response. The response must be finished with this method
-     * when done. This method has no side effect if called more than once.
+     * Completes the response. Each exchange's response must be finished with
+     * this method when done. It's the end of the response. This method has no
+     * side effect if called more than once.
      */
     ServerHttpExchange end();
 

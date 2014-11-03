@@ -15,7 +15,6 @@
  */
 package org.atmosphere.vibe.platform.server.servlet3;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -116,10 +115,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             int version = getServletMinorVersion();
             if (version > 0) {
                 // 3.1+ asynchronous
-                new AsyncBodyReader(input, charset, bodyActions, errorActions, true);
+                new AsyncBodyReader(input, charset, chunkActions, endActions, errorActions);
             } else {
                 // 3.0 synchronous
-                new SyncBodyReader(input, charset, bodyActions, errorActions, true);
+                new SyncBodyReader(input, charset, chunkActions, endActions, errorActions);
             }
         } catch (IOException e) {
             errorActions.fire(e);
@@ -133,10 +132,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             int version = getServletMinorVersion();
             if (version > 0) {
                 // 3.1+ asynchronous
-                new AsyncBodyReader(input, null, bodyActions, errorActions, false);
+                new AsyncBodyReader(input, null, chunkActions, endActions, errorActions);
             } else {
                 // 3.0 synchronous
-                new SyncBodyReader(input, null, bodyActions, errorActions, false);
+                new SyncBodyReader(input, null, chunkActions, endActions, errorActions);
             }
         } catch (IOException e) {
             errorActions.fire(e);
@@ -159,18 +158,16 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     private abstract static class BodyReader {
         final ServletInputStream input;
         final Charset charset;
-        final Actions<Object> bodyActions;
+        final Actions<Object> chunkActions;
+        final Actions<Void> endActions;
         final Actions<Throwable> errorActions;
-        final boolean isText;
-        final StringBuilder text = new StringBuilder();
-        final ByteArrayOutputStream binary = new ByteArrayOutputStream();
 
-        public BodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Throwable> errorActions, boolean isText) {
+        public BodyReader(ServletInputStream input, Charset charset, Actions<Object> chunkActions, Actions<Void> endActions, Actions<Throwable> errorActions) {
             this.input = input;
             this.charset = charset;
-            this.bodyActions = bodyActions;
+            this.chunkActions = chunkActions;
+            this.endActions = endActions;
             this.errorActions = errorActions;
-            this.isText = isText;
             start();
         }
 
@@ -180,10 +177,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             int bytesRead = -1;
             byte buffer[] = new byte[8192];
             while (ready() && (bytesRead = input.read(buffer)) != -1) {
-                if (isText) {
-                    text.append(new String(buffer, 0, bytesRead, charset));
+                if (charset != null) {
+                    chunkActions.fire(new String(buffer, 0, bytesRead, charset));
                 } else {
-                    binary.write(buffer, 0, bytesRead);
+                    chunkActions.fire(ByteBuffer.wrap(buffer, 0, bytesRead));
                 }
             }
         }
@@ -191,18 +188,13 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
         abstract boolean ready();
 
         void end() {
-            if (isText) {
-                bodyActions.fire(text.toString());
-            } else {
-                bodyActions.fire(ByteBuffer.wrap(binary.toByteArray()));
-
-            }
+            endActions.fire();
         }
     }
 
     private static class AsyncBodyReader extends BodyReader {
-        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Throwable> errorActions, boolean isText) {
-            super(input, charset, bodyActions, errorActions, isText);
+        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> chunkActions, Actions<Void> endActions, Actions<Throwable> errorActions) {
+            super(input, charset, chunkActions, endActions, errorActions);
         }
 
         @Override
@@ -232,8 +224,8 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     private static class SyncBodyReader extends BodyReader {
-        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Throwable> errorActions, boolean isText) {
-            super(input, charset, bodyActions, errorActions, isText);
+        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Void> endActions, Actions<Throwable> errorActions) {
+            super(input, charset, bodyActions, endActions, errorActions);
         }
 
         @Override
