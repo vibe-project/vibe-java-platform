@@ -226,7 +226,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new StringContentProvider("희망을 잃고 쓰러져 가도 언젠가 다시 되돌아온다"), "text/plain; charset=utf-8");
+                req.content(new StringContentProvider("희망을 잃고 쓰러져 가도 언젠가 다시 되돌아온다", "euc-kr"), "text/plain; charset=euc-kr");
             }
         });
     }

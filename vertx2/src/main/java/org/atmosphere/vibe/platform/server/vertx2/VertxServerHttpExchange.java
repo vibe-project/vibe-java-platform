@@ -84,10 +84,21 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
 
     @Override
     protected void readAsText() {
+        // HTTP 1.1 says that the default charset is ISO-8859-1
+        // http://www.w3.org/International/O-HTTP-charset#charset
+        String charset = "ISO-8859-1";
+        String contentType = request.headers().get("content-type");
+        if (contentType != null) {
+            int idx = contentType.indexOf("charset=");
+            if (idx != -1) {
+                charset = contentType.substring(idx + "charset=".length());
+            }
+        }
+        final String charsetName = charset;
         request.dataHandler(new Handler<Buffer>() {
             @Override
             public void handle(Buffer body) {
-                chunkActions.fire(body.toString());
+                chunkActions.fire(body.toString(charsetName));
             }
         })
         .endHandler(new VoidHandler() {
