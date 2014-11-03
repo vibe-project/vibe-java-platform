@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.atmosphere</groupId>
         <artifactId>vibe-platform-parent</artifactId>
-        <version>3.0.0-Alpha3-SNAPSHOT</version>
+        <version>3.0.0-Alpha3</version>
     </parent>
     <artifactId>vibe-platform-server-jwa1</artifactId>
     <name>Java WebSocket API 1 Bridge</name>
