@@ -32,6 +32,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,11 +52,11 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  */
 public class VibeServerCodec extends ChannelInboundHandlerAdapter {
 
-    private Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
-    private Actions<ServerWebSocket> wsActions = new SimpleActions<>();
-    private Map<Channel, NettyServerHttpExchange> httpMap = new ConcurrentHashMap<>();
-    private Map<Channel, NettyServerWebSocket> wsMap = new ConcurrentHashMap<>();
-    private Map<Channel, FullHttpRequest> wsReqMap = new ConcurrentHashMap<>();
+    private final Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
+    private final Actions<ServerWebSocket> wsActions = new SimpleActions<>();
+    private final Map<Channel, NettyServerHttpExchange> httpMap = new ConcurrentHashMap<>();
+    private final Map<Channel, NettyServerWebSocket> wsMap = new ConcurrentHashMap<>();
+    private final Map<Channel, FullHttpRequest> wsReqMap = new ConcurrentHashMap<>();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -64,11 +65,13 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
             if (!accept(req)) {
                 return;
             }
-            if (req.getMethod() == HttpMethod.GET && req.headers().contains(HttpHeaders.Values.UPGRADE, HttpHeaders.Values.WEBSOCKET, true)) {
+            if (req.getMethod() == HttpMethod.GET && req.headers().contains(HttpHeaders.Names.UPGRADE, HttpHeaders.Values.WEBSOCKET, true)) {
                 // Because WebSocketServerHandshaker requires FullHttpRequest
                 FullHttpRequest wsRequest = new DefaultFullHttpRequest(req.getProtocolVersion(), req.getMethod(), req.getUri());
                 wsRequest.headers().set(req.headers());
                 wsReqMap.put(ctx.channel(), wsRequest);
+                // Set timeout to avoid memory leak
+                ctx.pipeline().addFirst(new ReadTimeoutHandler(5));
             } else {
                 NettyServerHttpExchange http = new NettyServerHttpExchange(ctx, req);
                 httpMap.put(ctx.channel(), http);
@@ -80,6 +83,8 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
                 wsReq.content().writeBytes(((HttpContent) msg).content());
                 if (msg instanceof LastHttpContent) {
                     wsReqMap.remove(ctx.channel());
+                    // Cancel timeout
+                    ctx.pipeline().remove(ReadTimeoutHandler.class);
                     WebSocketServerHandshakerFactory factory = new WebSocketServerHandshakerFactory(getWebSocketLocation(ctx.pipeline(), wsReq), null, true);
                     WebSocketServerHandshaker handshaker = factory.newHandshaker(wsReq);
                     if (handshaker == null) {
