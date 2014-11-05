@@ -289,10 +289,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     @Override
     public <T> T unwrap(Class<T> clazz) {
         return HttpServletRequest.class.isAssignableFrom(clazz) ?
-                clazz.cast(request) :
-                HttpServletResponse.class.isAssignableFrom(clazz) ?
-                        clazz.cast(response) :
-                        null;
+            clazz.cast(request) :
+            HttpServletResponse.class.isAssignableFrom(clazz) ?
+                clazz.cast(response) :
+                null;
     }
 
 }

@@ -15,6 +15,7 @@
     <modules>
         <module>atmosphere2</module>
         <module>jwa1</module>
+        <module>netty4</module>
         <module>play2</module>
         <module>servlet3</module>
         <module>test</module>
@@ -151,6 +152,11 @@
                 <artifactId>play_2.11</artifactId>
                 <version>2.3.2</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.0.24.Final</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
