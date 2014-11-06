@@ -38,7 +38,7 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  * ServerEndpointConfig config = ServerEndpointConfig.Builder.create(VibeServerEndpoint.class, "/vibe")
  * .configurator(new Configurator() {
  *     {@literal @}Override
- *     public &ltT&gt T getEndpointInstance(Class&ltT&gt endpointClass) throws InstantiationException {
+ *     protected &ltT&gt T getEndpointInstance(Class&ltT&gt endpointClass) throws InstantiationException {
  *         return endpointClass.cast(new VibeServerEndpoint() {
  *             {@literal @}Override
  *             public Action&ltServerWebSocket&gt wsAction() {
@@ -60,7 +60,7 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  *     private Server server;
  *     
  *     {@literal @}Override
- *     public Action&ltServerWebSocket&gt wsAction() {
+ *     protected Action&ltServerWebSocket&gt wsAction() {
  *         return server.wsAction();
  *     }
  * }
@@ -85,7 +85,7 @@ public class VibeServerEndpoint extends Endpoint {
      * overriding it. During the life cycle of {@link Endpoint}, it is called
      * only once and you can instantiate some action safely within the method.
      */
-    public Action<ServerWebSocket> wsAction() {
+    protected Action<ServerWebSocket> wsAction() {
         throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
     }
 

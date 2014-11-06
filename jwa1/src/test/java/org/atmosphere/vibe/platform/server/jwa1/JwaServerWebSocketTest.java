@@ -52,7 +52,7 @@ public class JwaServerWebSocketTest extends ServerWebSocketTestTemplate {
             public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
                 return endpointClass.cast(new VibeServerEndpoint() {
                     @Override
-                    public Action<ServerWebSocket> wsAction() {
+                    protected Action<ServerWebSocket> wsAction() {
                         return new Action<ServerWebSocket>() {
                             @Override
                             public void on(ServerWebSocket ws) {
