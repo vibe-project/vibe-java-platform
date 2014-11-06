@@ -25,7 +25,6 @@ import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 import javax.websocket.Session;
 
-import org.atmosphere.vibe.platform.Actions;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.slf4j.Logger;
@@ -59,15 +58,13 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
             }
         });
     }
-
-    // To be used by BridgeEndpoint
-    Actions<Void> closeActions() {
-        return closeActions;
+    
+    void onError(Throwable e) {
+        errorActions.fire(e);
     }
 
-    // To be used by BridgeEndpoint
-    Actions<Throwable> errorActions() {
-        return errorActions;
+    void onClose() {
+        closeActions.fire();
     }
 
     @Override
@@ -91,7 +88,7 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
             semaphore.acquireUninterruptibly();
             session.getAsyncRemote().sendBinary(byteBuffer, new WriteResult(byteBuffer));
         } catch (IllegalStateException e) {
-            // TODO: The message will be losr, need a cache.
+            // TODO: The message will be lost, need a cache.
             semaphore.release();
             errorActions.fire(e);
         }
@@ -103,7 +100,7 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
             semaphore.acquireUninterruptibly();
             session.getAsyncRemote().sendText(data, new WriteResult(data));
         } catch (IllegalStateException e) {
-            // TODO: The message will be losr, need a cache.
+            // TODO: The message will be lost, need a cache.
             semaphore.release();
             errorActions.fire(e);
         }

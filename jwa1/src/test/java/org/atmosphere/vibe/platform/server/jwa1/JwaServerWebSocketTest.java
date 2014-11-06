@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import javax.websocket.Session;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
+import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
@@ -45,13 +46,24 @@ public class JwaServerWebSocketTest extends ServerWebSocketTestTemplate {
         // ServletContext and WebSocketServerContainerInitializer
         ServletContextHandler handler = new ServletContextHandler();
         server.setHandler(handler);
-        ServerEndpointConfig config = new JwaBridge("/test").websocketAction(new Action<ServerWebSocket>() {
+        ServerEndpointConfig config = ServerEndpointConfig.Builder.create(VibeServerEndpoint.class, "/test")
+        .configurator(new Configurator() {
             @Override
-            public void on(ServerWebSocket ws) {
-                performer.serverAction().on(ws);
+            public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
+                return endpointClass.cast(new VibeServerEndpoint() {
+                    @Override
+                    public Action<ServerWebSocket> wsAction() {
+                        return new Action<ServerWebSocket>() {
+                            @Override
+                            public void on(ServerWebSocket ws) {
+                                performer.serverAction().on(ws);
+                            }
+                        };
+                    }
+                });
             }
         })
-                .config();
+        .build();
         ServerContainer container = WebSocketServerContainerInitializer.configureContext(handler);
         container.addEndpoint(config);
 
