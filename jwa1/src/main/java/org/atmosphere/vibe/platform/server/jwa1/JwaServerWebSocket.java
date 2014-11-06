@@ -69,6 +69,8 @@ public class JwaServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     public String uri() {
+        // session.getRequestURI() returns the full URI starting with protocol
+        // not request URI starting with path
         URI uri = session.getRequestURI();
         return uri.getPath() + (uri.getQuery() != null ? "?" + uri.getQuery() : "");
     }

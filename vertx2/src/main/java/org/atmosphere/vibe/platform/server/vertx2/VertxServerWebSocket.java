@@ -33,7 +33,6 @@ import org.vertx.java.core.http.impl.ws.WebSocketFrameInternal;
 public class VertxServerWebSocket extends AbstractServerWebSocket {
 
     private final org.vertx.java.core.http.ServerWebSocket socket;
-    private String uri;
 
     public VertxServerWebSocket(org.vertx.java.core.http.ServerWebSocket socket) {
         this.socket = socket;
@@ -52,6 +51,7 @@ public class VertxServerWebSocket extends AbstractServerWebSocket {
         .frameHandler(new Handler<WebSocketFrame>() {
             @Override
             public void handle(WebSocketFrame f) {
+                // Deal with only data frames
                 WebSocketFrameInternal frame = (WebSocketFrameInternal) f;
                 switch (frame.type()) {
                 case TEXT:
@@ -69,13 +69,7 @@ public class VertxServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     public String uri() {
-        if (uri == null) {
-            uri = socket.path();
-            if (socket.query() != null) {
-                uri += "?" + socket.query();
-            }
-        }
-        return uri;
+        return socket.uri();
     }
 
     @Override

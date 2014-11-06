@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 The Vibe Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.atmosphere.vibe.platform.server.vertx2;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -7,6 +22,7 @@ import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.atmosphere.vibe.platform.test.server.ServerWebSocketTestTemplate;
 import org.junit.Test;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 
@@ -17,10 +33,12 @@ public class VertxServerWebSocketTest extends ServerWebSocketTestTemplate {
     @Override
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
-        new VertxBridge(server, "/test").websocketAction(new Action<ServerWebSocket>() {
+        server.websocketHandler(new Handler<org.vertx.java.core.http.ServerWebSocket>() {
             @Override
-            public void on(ServerWebSocket ws) {
-                performer.serverAction().on(ws);
+            public void handle(org.vertx.java.core.http.ServerWebSocket socket) {
+                if (socket.path().equals("/test")) {
+                    performer.serverAction().on(new VertxServerWebSocket(socket));
+                }
             }
         });
         server.listen(port);

@@ -126,6 +126,11 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
+    protected void doSetStatus(HttpStatus status) {
+        response.setStatusCode(status.code()).setStatusMessage(status.reason());
+    }
+
+    @Override
     protected void doSetHeader(String name, String value) {
         response.putHeader(name, value);
     }
@@ -133,11 +138,6 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     @Override
     protected void doWrite(ByteBuffer byteBuffer) {
         response.write(new Buffer().setBytes(0, byteBuffer));
-    }
-
-    @Override
-    protected void doSetStatus(HttpStatus status) {
-        response.setStatusCode(status.code()).setStatusMessage(status.reason());
     }
 
     @Override
