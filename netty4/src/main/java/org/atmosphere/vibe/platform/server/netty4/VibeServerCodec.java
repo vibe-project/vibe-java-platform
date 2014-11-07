@@ -38,22 +38,44 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.atmosphere.vibe.platform.Action;
-import org.atmosphere.vibe.platform.Actions;
-import org.atmosphere.vibe.platform.SimpleActions;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 
 /**
- * Processes {@link HttpRequest} and {@link HttpResponse} into
- * {@link NettyServerHttpExchange} and {@link NettyServerWebSocket}. It requires
- * {@link HttpServerCodec} in front of this codec.
+ * ChannelHandler to process {@link HttpRequest} and {@link HttpResponse} into
+ * {@link NettyServerHttpExchange} and {@link NettyServerWebSocket}. You need to
+ * configure this handler and provide your action to receive
+ * {@link ServerHttpExchange} and {@link ServerWebSocket} by overriding
+ * {@link VibeServerCodec#httpAction()} and {@link VibeServerCodec#wsAction()}
+ * like the following usage. When you configure handler, you must add
+ * <strong>{@link HttpServerCodec}</strong> in front of this handler.
+ * <p>
+ * <pre>
+ * 
+ * ChannelPipeline pipeline = ch.pipeline();
+ * <strong>pipeline.addLast(new HttpServerCodec())</strong>
+ * .addLast(new VibeServerCodec() {
+ *     {@literal @}Override
+ *     protected boolean accept(HttpRequest req) {
+ *         return URI.create(req.getUri()).getPath().equals("/vibe");
+ *     }
+ *     
+ *     {@literal @}Override
+ *     protected Action&ltServerHttpExchange&gt httpAction() {
+ *         return server.httpAction();
+ *     }
+ *     
+ *     {@literal @}Override
+ *     public Action&ltServerWebSocket&gt wsAction() {
+ *         return server.websocketAction();
+ *     }
+ * });
+ * </pre>
  *
  * @author Donghwan Kim
  */
 public class VibeServerCodec extends ChannelInboundHandlerAdapter {
 
-    private final Actions<ServerHttpExchange> httpActions = new SimpleActions<>();
-    private final Actions<ServerWebSocket> wsActions = new SimpleActions<>();
     private final Map<Channel, NettyServerHttpExchange> httpMap = new ConcurrentHashMap<>();
     private final Map<Channel, NettyServerWebSocket> wsMap = new ConcurrentHashMap<>();
     private final Map<Channel, FullHttpRequest> wsReqMap = new ConcurrentHashMap<>();
@@ -75,7 +97,7 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
             } else {
                 NettyServerHttpExchange http = new NettyServerHttpExchange(ctx, req);
                 httpMap.put(ctx.channel(), http);
-                httpActions.fire(http);
+                httpAction().on(http);
             }
         } else if (msg instanceof HttpContent) {
             FullHttpRequest wsReq = wsReqMap.get(ctx.channel());
@@ -93,7 +115,7 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
                         handshaker.handshake(ctx.channel(), wsReq);
                         NettyServerWebSocket ws = new NettyServerWebSocket(ctx, wsReq, handshaker);
                         wsMap.put(ctx.channel(), ws);
-                        wsActions.fire(ws);
+                        wsAction().on(ws);
                     }
                 }
             } else {
@@ -111,8 +133,8 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
     }
     
     /**
-     * Whether to delegate this request to Vibe or not. By default, it accepts
-     * every request.
+     * Whether to process this request or not. By default, it accepts every
+     * request.
      */
     protected boolean accept(HttpRequest req) {
         return true;
@@ -149,21 +171,21 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * Adds an action to be called on HTTP request with
-     * {@link ServerHttpExchange}.
+     * An {@link Action} to consume {@link ServerHttpExchange}. By default, it
+     * throws {@link IllegalStateException} so you should provide your action by
+     * overriding it.
      */
-    public VibeServerCodec httpAction(Action<ServerHttpExchange> action) {
-        httpActions.add(action);
-        return this;
+    protected Action<ServerHttpExchange> httpAction() {
+        throw new IllegalStateException("Actiont to receive ServerHttpExchange is not set");
     }
 
     /**
-     * Adds an action to be called on WebSocket connection with
-     * {@link ServerWebSocket} in open state.
+     * An {@link Action} to consume {@link ServerWebSocket}. By default, it
+     * throws {@link IllegalStateException} so you should provide your action by
+     * overriding it.
      */
-    public VibeServerCodec websocketAction(Action<ServerWebSocket> action) {
-        wsActions.add(action);
-        return this;
+    public Action<ServerWebSocket> wsAction() {
+        throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
     }
 
 }

@@ -58,13 +58,17 @@ public class NettyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
                     protected boolean accept(HttpRequest req) {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
-                }
-                .httpAction(new Action<ServerHttpExchange>() {
+                    
                     @Override
-                    public void on(ServerHttpExchange http) {
-                        performer.serverAction().on(http);
+                    protected Action<ServerHttpExchange> httpAction() {
+                        return new Action<ServerHttpExchange>() {
+                            @Override
+                            public void on(ServerHttpExchange http) {
+                                performer.serverAction().on(http);
+                            }
+                        };
                     }
-                }));
+                });
             }
         });
         bootstrap.bind(port);

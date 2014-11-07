@@ -59,13 +59,17 @@ public class NettyServerWebSocketTest extends ServerWebSocketTestTemplate {
                     protected boolean accept(HttpRequest req) {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
-                }
-                .websocketAction(new Action<ServerWebSocket>() {
+                    
                     @Override
-                    public void on(ServerWebSocket ws) {
-                        performer.serverAction().on(ws);
+                    public Action<ServerWebSocket> wsAction() {
+                        return new Action<ServerWebSocket>() {
+                            @Override
+                            public void on(ServerWebSocket ws) {
+                                performer.serverAction().on(ws);
+                            }
+                        };
                     }
-                }));
+                });
             }
         });
         bootstrap.bind(port);
