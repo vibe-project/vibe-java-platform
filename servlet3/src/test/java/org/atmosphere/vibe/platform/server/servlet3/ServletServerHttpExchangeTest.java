@@ -18,8 +18,6 @@ package org.atmosphere.vibe.platform.server.servlet3;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -55,7 +53,7 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
                 @SuppressWarnings("serial")
-                ServletRegistration.Dynamic reg = context.addServlet("vibe#" + UUID.randomUUID(), new VibeServlet() {
+                ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), new VibeServlet() {
                     @Override
                     protected Action<ServerHttpExchange> httpAction() {
                         return new Action<ServerHttpExchange>() {

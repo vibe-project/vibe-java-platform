@@ -3,9 +3,12 @@ package org.atmosphere.vibe.platform.server.atmosphere2;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRegistration;
 
+import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -18,7 +21,6 @@ import org.junit.Test;
 
 public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
 
-    // Strictly speaking, we have to test all server Atmosphere 2 supports.
     Server server;
 
     @Override
@@ -34,12 +36,22 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTestTemp
         ServletContextListener listener = new ServletContextListener() {
             @Override
             public void contextInitialized(ServletContextEvent event) {
-                new AtmosphereBridge(event.getServletContext(), "/test").httpAction(new Action<ServerHttpExchange>() {
+                ServletContext context = event.getServletContext();
+                @SuppressWarnings("serial")
+                ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), new VibeAtmosphereServlet() {
                     @Override
-                    public void on(ServerHttpExchange http) {
-                        performer.serverAction().on(http);
+                    protected Action<ServerHttpExchange> httpAction() {
+                        return new Action<ServerHttpExchange>() {
+                            @Override
+                            public void on(ServerHttpExchange http) {
+                                performer.serverAction().on(http);
+                            }
+                        };
                     }
                 });
+                reg.setAsyncSupported(true);
+                reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString());
+                reg.addMapping("/test");
             }
 
             @Override
