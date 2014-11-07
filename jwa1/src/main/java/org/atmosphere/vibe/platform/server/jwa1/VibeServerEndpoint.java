@@ -52,7 +52,6 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  * <p>
  * With CDI, the following usage is also available.
  * <p>
- * 
  * <pre>
  * {@literal @}ServerEndpoint("/vibe")
  * public class MyVibeServerEndpoint extends VibeServerEndpoint {
@@ -82,8 +81,7 @@ public class VibeServerEndpoint extends Endpoint {
     /**
      * An {@link Action} to consume {@link ServerWebSocket}. By default, it
      * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it. During the life cycle of {@link Endpoint}, it is called
-     * only once and you can instantiate some action safely within the method.
+     * overriding it.
      */
     protected Action<ServerWebSocket> wsAction() {
         throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
