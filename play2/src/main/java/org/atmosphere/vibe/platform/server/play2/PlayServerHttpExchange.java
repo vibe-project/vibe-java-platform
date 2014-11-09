@@ -119,6 +119,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     // Play can't read body asynchronously
+    // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
     @Override
     protected void readAsText() {
         chunkActions.fire(request.body().asText());
@@ -154,25 +155,25 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doWrite(ByteBuffer byteBuffer) {
-        // TODO: https://github.com/vibe-project/vibe-java-platform/issues/4
-        // TODO: We need the char encoding
-        try {
-            byte[] bytes = new byte[byteBuffer.remaining()];
-            byteBuffer.get(bytes);
-            doWrite(new String(bytes, 0, bytes.length, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            errorActions.fire(e);
-        }
-    }
-
-    @Override
     protected void doWrite(String data) {
         if (out == null) {
             written.countDown();
             buffer.add(data);
         } else {
             out.write(data);
+        }
+    }
+
+    @Override
+    protected void doWrite(ByteBuffer byteBuffer) {
+        // Play Java API doesn't allow to write both text and binary data through a single connection
+        // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
+        try {
+            byte[] bytes = new byte[byteBuffer.remaining()];
+            byteBuffer.get(bytes);
+            doWrite(new String(bytes, 0, bytes.length, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            errorActions.fire(e);
         }
     }
 

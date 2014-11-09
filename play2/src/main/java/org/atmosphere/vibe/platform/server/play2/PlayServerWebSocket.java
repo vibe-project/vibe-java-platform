@@ -16,8 +16,8 @@
 package org.atmosphere.vibe.platform.server.play2;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
+import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.AbstractServerWebSocket;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 
@@ -41,8 +41,6 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
     public PlayServerWebSocket(Request request, In<String> in, Out<String> out) {
         this.request = request;
         this.out = out;
-        // Play at least with Java can't receive both text and binary data
-        // together through a single WebSocket connection
         in.onMessage(new Callback<String>() {
             @Override
             public void invoke(String message) throws Throwable {
@@ -55,6 +53,12 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
                 closeActions.fire();
             }
         });
+    }
+    
+    @Override
+    public ServerWebSocket binaryAction(Action<ByteBuffer> action) {
+        // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
+        throw new UnsupportedOperationException("Play Java API doesn't allow to receive text and binary frame together in a single connection");
     }
 
     @Override
@@ -74,10 +78,9 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
 
     @Override
     protected void doSend(ByteBuffer byteBuffer) {
-        // TODO: https://github.com/vibe-project/vibe-java-platform/issues/4
-        byte[] bytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get(bytes);
-        out.write(new String(bytes, Charset.forName("UTF-8")));
+        // Transformation from binary to text results in sending a text frame not binary frame
+        // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
+        throw new UnsupportedOperationException("Play Java API doesn't allow to write text and binary frame together in a single connection");
     }
 
     /**
