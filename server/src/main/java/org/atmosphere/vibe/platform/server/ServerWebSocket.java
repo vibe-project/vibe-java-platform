@@ -21,13 +21,11 @@ import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.Wrapper;
 
 /**
- * Represents a server-side WebSocket session.
+ * Represents a server-side WebSocket.
  * <p/>
- * Implementations are not thread-safe and decide whether and which event is
- * fired in asynchronous manner.
+ * Implementations are not thread-safe.
  *
  * @author Donghwan Kim
- * @see <a href="http://www.w3.org/TR/websockets/">The WebSocket API by W3C</a>
  * @see <a href="http://tools.ietf.org/html/rfc6455">RFC6455 - The WebSocket
  *      Protocol</a>
  */
@@ -65,15 +63,15 @@ public interface ServerWebSocket extends Wrapper {
     ServerWebSocket binaryAction(Action<ByteBuffer> action);
 
     /**
-     * Attaches an action for the close event. If the connection is already
-     * closed, the handler will be executed on addition. After this event, all
-     * the other event will be disabled.
+     * Attaches an action for the close event. After this event, all the other
+     * event will be disabled.
      */
     ServerWebSocket closeAction(Action<Void> action);
 
     /**
      * Attaches an action to handle error from various things. Its exact
-     * behavior is platform-specific.
+     * behavior is platform-specific and error created by the platform is
+     * propagated.
      */
     ServerWebSocket errorAction(Action<Throwable> action);
 

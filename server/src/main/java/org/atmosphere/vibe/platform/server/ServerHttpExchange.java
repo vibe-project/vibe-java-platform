@@ -26,17 +26,16 @@ import org.atmosphere.vibe.platform.Wrapper;
 /**
  * Represents a server-side HTTP request-response exchange.
  * <p/>
- * Implementations are not thread-safe and decide whether and which event is
- * fired in asynchronous manner.
+ * Implementations are not thread-safe.
  *
  * @author Donghwan Kim
  * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">RFC2616 -
- * Hypertext Transfer Protocol -- HTTP/1.1</a>
+ *      Hypertext Transfer Protocol -- HTTP/1.1</a>
  */
 public interface ServerHttpExchange extends Wrapper {
 
     /**
-     * The request URI used to connect.
+     * The request URI.
      */
     String uri();
 
@@ -63,8 +62,12 @@ public interface ServerHttpExchange extends Wrapper {
     List<String> headers(String name);
     
     /**
-     * Reads the request body. The read data will be passed to event handlers
-     * attached through {@link ServerHttpExchange#chunkAction(Action)} or
+     * Reads the request body. If the request header, {@code content-type},
+     * starts with {@code text/}, the body is read as text, and if not, as
+     * binary.
+     * <p>
+     * The read data will be passed to event handlers attached through
+     * {@link ServerHttpExchange#chunkAction(Action)} or
      * {@link ServerHttpExchange#bodyAction(Action)}. In the following cases,
      * this method must be executed after adding chunk or body event handler.
      * <p />
@@ -114,12 +117,12 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange setHeader(String name, Iterable<String> value);
 
     /**
-     * Writes a text to the response body.
+     * Writes a text chunk to the response body.
      */
     ServerHttpExchange write(String data);
 
     /**
-     * Writes a byte body to the response body.
+     * Writes a binary chunk to the response body.
      */
     ServerHttpExchange write(ByteBuffer byteBuffer);
 
@@ -131,29 +134,29 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange end();
 
     /**
-     * Writes a string to the response body and completes the response through
-     * {@link ServerHttpExchange#end()}.
+     * Writes a text chunk to the response body and completes the response
+     * through {@link ServerHttpExchange#end()}.
      */
     ServerHttpExchange end(String data);
 
     /**
-     * Writes a byte to the response body and completes the response through
-     * {@link ServerHttpExchange#end()}.
+     * Writes a binary chunk to the response body and completes the response
+     * through {@link ServerHttpExchange#end()}.
      */
     ServerHttpExchange end(ByteBuffer byteBuffer);
 
     /**
      * Attaches an action to be called when this exchange gets an error. It may
      * or may not accompany the closure of connection. Its exact behavior is
-     * platform-specific.
+     * platform-specific and error created by the platform is propagated.
      */
     ServerHttpExchange errorAction(Action<Throwable> action);
 
     /**
-     * Attaches an action to be called when both request and response end or the
-     * underlying connection is aborted for some reason like an error. If the
-     * connection is already closed, the handler will be executed on addition.
-     * After this event, all the other event will be disabled.
+     * Attaches an action to be called when both request and response end
+     * successfully or the underlying connection is aborted for some reason like
+     * an error. After this event, all the other event will be
+     * disabled.
      */
     ServerHttpExchange closeAction(Action<Void> action);
 
