@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.HttpStatus;
@@ -532,16 +533,58 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
-    public void closeAction_normal() {
+    // response end -> request end
+    public void closeAction_normal_1() {
+        final AtomicBoolean reqEnded = new AtomicBoolean();
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.read().end().closeAction(new VoidAction() {
+                http.endAction(new VoidAction() {
                     @Override
                     public void on() {
+                        reqEnded.set(true);
+                    }
+                })
+                .read().end().closeAction(new VoidAction() {
+                    @Override
+                    public void on() {
+                        assertThat(reqEnded.get(), is(true));
                         performer.start();
                     }
                 });
+            }
+        })
+        .send(new Action<Request>() {
+            @Override
+            public void on(final Request req) {
+                new Timer(true).schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        req.content(new StringContentProvider("Day 2: The Day Before"));
+                    }
+                }, 1000);
+            }
+        });
+    }
+
+    @Test
+    // request end -> response end
+    public void closeAction_normal_2() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(final ServerHttpExchange http) {
+                http.endAction(new VoidAction() {
+                    @Override
+                    public void on() {
+                        http.end().closeAction(new VoidAction() {
+                            @Override
+                            public void on() {
+                                performer.start();
+                            }
+                        });
+                    }
+                })
+                .read();
             }
         })
         .send(new Action<Request>() {

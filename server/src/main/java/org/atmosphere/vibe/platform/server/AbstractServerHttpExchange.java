@@ -246,7 +246,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
             ended = true;
             doEnd();
             if (read) {
-                closeActions.fire();
+                endActions.add(new VoidAction() {
+                    @Override
+                    public void on() {
+                        closeActions.fire();
+                    }
+                });
             }
         }
         return this;
