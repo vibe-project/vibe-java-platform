@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
+import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -81,40 +82,13 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     public List<String> headers(String name) {
         return request.headers().getAll(name);
     }
-
-    @Override
-    protected void readAsText() {
-        // HTTP 1.1 says that the default charset is ISO-8859-1
-        // http://www.w3.org/International/O-HTTP-charset#charset
-        String charset = "ISO-8859-1";
-        String contentType = request.headers().get("content-type");
-        if (contentType != null) {
-            int idx = contentType.indexOf("charset=");
-            if (idx != -1) {
-                charset = contentType.substring(idx + "charset=".length());
-            }
-        }
-        final String charsetName = charset;
-        request.dataHandler(new Handler<Buffer>() {
-            @Override
-            public void handle(Buffer body) {
-                chunkActions.fire(body.toString(charsetName));
-            }
-        })
-        .endHandler(new VoidHandler() {
-            @Override
-            protected void handle() {
-                endActions.fire();
-            }
-        });
-    }
     
     @Override
-    protected void readAsBinary() {
+    protected void doRead(final Action<ByteBuffer> chunkAction) {
         request.dataHandler(new Handler<Buffer>() {
             @Override
             public void handle(Buffer body) {
-                chunkActions.fire(ByteBuffer.wrap(body.getBytes()));
+                chunkAction.on(body.getByteBuf().nioBuffer());
             }
         })
         .endHandler(new VoidHandler() {
@@ -138,11 +112,6 @@ public class VertxServerHttpExchange extends AbstractServerHttpExchange {
     @Override
     protected void doWrite(ByteBuffer byteBuffer) {
         response.write(new Buffer().setBytes(0, byteBuffer));
-    }
-
-    @Override
-    protected void doWrite(String data) {
-        response.write(data);
     }
 
     @Override

@@ -15,7 +15,6 @@
  */
 package org.atmosphere.vibe.platform.server.play2;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -35,8 +35,8 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Result;
 import play.mvc.Results;
+import play.mvc.Results.ByteChunks;
 import play.mvc.Results.Chunks;
-import play.mvc.Results.StringChunks;
 
 /**
  * {@link ServerHttpExchange} for Play 2.
@@ -49,9 +49,9 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     private final Response response;
     private boolean aborted;
     private CountDownLatch written = new CountDownLatch(1);
-    private List<String> buffer = new ArrayList<>();
+    private List<byte[]> buffer = new ArrayList<>();
     private HttpStatus status = HttpStatus.OK;
-    private Chunks.Out<String> out;
+    private Chunks.Out<byte[]> out;
 
     public PlayServerHttpExchange(Request request, Response response) {
         this.request = request;
@@ -67,9 +67,9 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
                 written.await();
                 // Because ServerHttpExchange is not thread-safe
                 synchronized (PlayServerHttpExchange.this) {
-                    return Results.status(status.code(), new StringChunks() {
+                    return Results.status(status.code(), new ByteChunks() {
                         @Override
-                        public void onReady(Chunks.Out<String> out) {
+                        public void onReady(Chunks.Out<byte[]> out) {
                             // With the same reason as above
                             synchronized (PlayServerHttpExchange.this) {
                                 PlayServerHttpExchange.this.out = out;
@@ -79,7 +79,7 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
                                         closeActions.fire();
                                     }
                                 });
-                                for (String data : buffer) {
+                                for (byte[] data : buffer) {
                                     out.write(data);
                                 }
                                 if (aborted) {
@@ -121,14 +121,8 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     // Play can't read body asynchronously
     // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
     @Override
-    protected void readAsText() {
-        chunkActions.fire(request.body().asText());
-        endActions.fire();
-    }
-    
-    @Override
-    protected void readAsBinary() {
-        chunkActions.fire(ByteBuffer.wrap(request.body().asRaw().asBytes()));
+    protected void doRead(Action<ByteBuffer> chunkAction) {
+        chunkAction.on(ByteBuffer.wrap(request.body().asRaw().asBytes()));
         endActions.fire();
     }
     
@@ -155,25 +149,14 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doWrite(String data) {
+    protected void doWrite(ByteBuffer byteBuffer) {
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
         if (out == null) {
             written.countDown();
-            buffer.add(data);
+            buffer.add(bytes);
         } else {
-            out.write(data);
-        }
-    }
-
-    @Override
-    protected void doWrite(ByteBuffer byteBuffer) {
-        // Play Java API doesn't allow to write both text and binary data through a single connection
-        // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
-        try {
-            byte[] bytes = new byte[byteBuffer.remaining()];
-            byteBuffer.get(bytes);
-            doWrite(new String(bytes, 0, bytes.length, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            errorActions.fire(e);
+            out.write(bytes);
         }
     }
 

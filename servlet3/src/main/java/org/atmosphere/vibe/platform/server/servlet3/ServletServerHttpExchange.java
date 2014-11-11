@@ -17,9 +17,7 @@ package org.atmosphere.vibe.platform.server.servlet3;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
@@ -34,6 +32,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.Actions;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
@@ -103,39 +102,18 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     public List<String> headers(String name) {
         return Collections.list(request.getHeaders(name));
     }
-
-    @Override
-    protected void readAsText() {
-        // HTTP 1.1 says that the default charset is ISO-8859-1
-        // http://www.w3.org/International/O-HTTP-charset#charset
-        String charsetName = request.getCharacterEncoding();
-        final Charset charset = Charset.forName(charsetName == null ? "ISO-8859-1" : charsetName);
-        try {
-            ServletInputStream input = request.getInputStream();
-            int version = getServletMinorVersion();
-            if (version > 0) {
-                // 3.1+ asynchronous
-                new AsyncBodyReader(input, charset, chunkActions, endActions, errorActions);
-            } else {
-                // 3.0 synchronous
-                new SyncBodyReader(input, charset, chunkActions, endActions, errorActions);
-            }
-        } catch (IOException e) {
-            errorActions.fire(e);
-        }
-    }
     
     @Override
-    protected void readAsBinary() {
+    protected void doRead(Action<ByteBuffer> chunkAction) {
         try {
             ServletInputStream input = request.getInputStream();
             int version = getServletMinorVersion();
             if (version > 0) {
                 // 3.1+ asynchronous
-                new AsyncBodyReader(input, null, chunkActions, endActions, errorActions);
+                new AsyncBodyReader(input, chunkAction, endActions, errorActions);
             } else {
                 // 3.0 synchronous
-                new SyncBodyReader(input, null, chunkActions, endActions, errorActions);
+                new SyncBodyReader(input, chunkAction, endActions, errorActions);
             }
         } catch (IOException e) {
             errorActions.fire(e);
@@ -157,15 +135,13 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
 
     private abstract static class BodyReader {
         final ServletInputStream input;
-        final Charset charset;
-        final Actions<Object> chunkActions;
+        final Action<ByteBuffer> chunkAction;
         final Actions<Void> endActions;
         final Actions<Throwable> errorActions;
 
-        public BodyReader(ServletInputStream input, Charset charset, Actions<Object> chunkActions, Actions<Void> endActions, Actions<Throwable> errorActions) {
+        public BodyReader(ServletInputStream input, Action<ByteBuffer> chunkAction, Actions<Void> endActions, Actions<Throwable> errorActions) {
             this.input = input;
-            this.charset = charset;
-            this.chunkActions = chunkActions;
+            this.chunkAction = chunkAction;
             this.endActions = endActions;
             this.errorActions = errorActions;
             start();
@@ -177,11 +153,7 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             int bytesRead = -1;
             byte buffer[] = new byte[8192];
             while (ready() && (bytesRead = input.read(buffer)) != -1) {
-                if (charset != null) {
-                    chunkActions.fire(new String(buffer, 0, bytesRead, charset));
-                } else {
-                    chunkActions.fire(ByteBuffer.wrap(buffer, 0, bytesRead));
-                }
+                chunkAction.on(ByteBuffer.wrap(buffer, 0, bytesRead));
             }
         }
 
@@ -193,8 +165,8 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     private static class AsyncBodyReader extends BodyReader {
-        public AsyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> chunkActions, Actions<Void> endActions, Actions<Throwable> errorActions) {
-            super(input, charset, chunkActions, endActions, errorActions);
+        public AsyncBodyReader(ServletInputStream input, Action<ByteBuffer> action, Actions<Void> endActions, Actions<Throwable> errorActions) {
+            super(input, action, endActions, errorActions);
         }
 
         @Override
@@ -224,8 +196,8 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     private static class SyncBodyReader extends BodyReader {
-        public SyncBodyReader(ServletInputStream input, Charset charset, Actions<Object> bodyActions, Actions<Void> endActions, Actions<Throwable> errorActions) {
-            super(input, charset, bodyActions, endActions, errorActions);
+        public SyncBodyReader(ServletInputStream input, Action<ByteBuffer> action, Actions<Void> endActions, Actions<Throwable> errorActions) {
+            super(input, action, endActions, errorActions);
         }
 
         @Override
@@ -245,6 +217,11 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
+    protected void doSetStatus(HttpStatus status) {
+        response.setStatus(status.code());
+    }
+
+    @Override
     protected void doSetHeader(String name, String value) {
         response.setHeader(name, value);
     }
@@ -257,22 +234,6 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             OutputStream outputStream = response.getOutputStream();
             outputStream.write(bytes);
             outputStream.flush();
-        } catch (IOException e) {
-            errorActions.fire(e);
-        }
-    }
-
-    @Override
-    protected void doSetStatus(HttpStatus status) {
-        response.setStatus(status.code());
-    }
-
-    @Override
-    protected void doWrite(String data) {
-        try {
-            PrintWriter writer = response.getWriter();
-            writer.print(data);
-            writer.flush();
         } catch (IOException e) {
             errorActions.fire(e);
         }

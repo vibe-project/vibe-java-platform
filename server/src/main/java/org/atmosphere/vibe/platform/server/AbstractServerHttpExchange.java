@@ -17,6 +17,7 @@ package org.atmosphere.vibe.platform.server;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,16 +36,17 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
-    protected final Actions<Object> chunkActions = new SimpleActions<>();
     protected final Actions<Void> endActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     protected final Actions<Throwable> errorActions = new SimpleActions<>();
     protected final Actions<Void> closeActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
 
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
+    private final Actions<Object> chunkActions = new SimpleActions<>();
     private final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     private boolean read;
     private boolean readBody;
     private boolean ended;
+    private Charset writeCharset;
 
     public AbstractServerHttpExchange() {
         endActions.add(new VoidAction() {
@@ -82,9 +84,20 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         if (!read) {
             read = true;
             if (hasTextBody()) {
-                readAsText();
+                final Charset charset = findCharset(header("content-type"));
+                doRead(new Action<ByteBuffer>() {
+                    @Override
+                    public void on(ByteBuffer byteBuffer) {
+                        chunkActions.fire(charset.decode(byteBuffer).toString());
+                    }
+                });
             } else {
-                readAsBinary();
+                doRead(new Action<ByteBuffer>() {
+                    @Override
+                    public void on(ByteBuffer byteBuffer) {
+                        chunkActions.fire(byteBuffer);
+                    }
+                });
             }
             if (ended) {
                 endActions.add(new VoidAction() {
@@ -97,11 +110,26 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         }
         return this;
     }
+
+    protected abstract void doRead(Action<ByteBuffer> chunkAction);
     
     private boolean hasTextBody() {
         // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
         String contentType = header("content-type");
         return contentType != null && contentType.startsWith("text/");
+    }
+    
+    private Charset findCharset(String contentType) {
+        // HTTP 1.1 says that the default charset is ISO-8859-1
+        // http://www.w3.org/International/O-HTTP-charset#charset
+        String charsetName = "ISO-8859-1";
+        if (contentType != null) {
+            int idx = contentType.indexOf("charset=");
+            if (idx != -1) {
+                charsetName = contentType.substring(idx + "charset=".length());
+            }
+        }
+        return Charset.forName(charsetName);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -159,9 +187,14 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         return this;
     }
 
-    protected abstract void readAsText();
+    @Override
+    public ServerHttpExchange setStatus(HttpStatus status) {
+        logger.trace("{} sets a response status, {}", this, status);
+        doSetStatus(status);
+        return this;
+    }
 
-    protected abstract void readAsBinary();
+    protected abstract void doSetStatus(HttpStatus status);
 
     @Override
     public final ServerHttpExchange setHeader(String name, Iterable<String> value) {
@@ -177,6 +210,10 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange setHeader(String name, String value) {
         logger.trace("{} sets a response header {} to {}", this, name, value);
+        // Intercepts content-type header to find charset
+        if (name.equalsIgnoreCase("content-type")) {
+            writeCharset = findCharset(value);
+        }
         doSetHeader(name, value);
         return this;
     }
@@ -186,11 +223,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange write(String data) {
         logger.trace("{} sends a text chunk {}", this, data);
-        doWrite(data);
+        if (writeCharset == null) {
+            writeCharset = findCharset(null);
+        }
+        doWrite(writeCharset.encode(data));
         return this;
     }
-
-    protected abstract void doWrite(String data);
 
     @Override
     public ServerHttpExchange write(ByteBuffer byteBuffer) {
@@ -225,15 +263,6 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     public ServerHttpExchange end(ByteBuffer data) {
         return write(data).end();
     }
-
-    @Override
-    public ServerHttpExchange setStatus(HttpStatus status) {
-        logger.trace("{} sets a response status, {}", this, status);
-        doSetStatus(status);
-        return this;
-    }
-
-    protected abstract void doSetStatus(HttpStatus status);
 
     @Override
     public ServerHttpExchange closeAction(Action<Void> action) {

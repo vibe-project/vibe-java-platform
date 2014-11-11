@@ -387,6 +387,33 @@ public abstract class ServerHttpExchangeTestTemplate {
     }
 
     @Test
+    public void write_text_charset() {
+        performer.serverAction(new Action<ServerHttpExchange>() {
+            @Override
+            public void on(ServerHttpExchange http) {
+                http.setHeader("content-type", "text/plain; charset=euc-kr").end("기억 속에 머무른 그 때의 모습으로 그때의 웃음으로");
+            }
+        })
+        .responseListener(new Response.Listener.Adapter() {
+            String body;
+
+            @Override
+            public void onContent(Response response, ByteBuffer content) {
+                byte[] bytes = new byte[content.remaining()];
+                content.get(bytes);
+                body = new String(bytes, Charset.forName("euc-kr"));
+            }
+
+            @Override
+            public void onSuccess(Response response) {
+                assertThat(body, is("기억 속에 머무른 그 때의 모습으로 그때의 웃음으로"));
+                performer.start();
+            }
+        })
+        .send();
+    }
+
+    @Test
     public void write_binary() {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override

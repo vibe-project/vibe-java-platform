@@ -27,10 +27,10 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 
+import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.HttpStatus;
 import org.atmosphere.vibe.platform.server.AbstractServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
@@ -46,7 +46,7 @@ public class NettyServerHttpExchange extends AbstractServerHttpExchange {
     private final HttpRequest request;
     private final HttpResponse response;
     private boolean written;
-    private Charset charset;
+    private Action<ByteBuffer> chunkAction;
 
     public NettyServerHttpExchange(ChannelHandlerContext context, HttpRequest request) {
         this.context = context;
@@ -84,33 +84,16 @@ public class NettyServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void readAsText() {
-        // HTTP 1.1 says that the default charset is ISO-8859-1
-        // http://www.w3.org/International/O-HTTP-charset#charset
-        String charsetName = "ISO-8859-1";
-        String contentType = request.headers().get("content-type");
-        if (contentType != null) {
-            int idx = contentType.indexOf("charset=");
-            if (idx != -1) {
-                charsetName = contentType.substring(idx + "charset=".length());
-            }
-        }
-        charset = Charset.forName(charsetName);
+    protected void doRead(Action<ByteBuffer> chunkAction) {
+        this.chunkAction = chunkAction;
     }
 
-    @Override
-    protected void readAsBinary() {}
-
     void handleChunk(HttpContent chunk) {
-        // To determine whether to read as text or binary
+        // To obtain chunkAction
         read();
         ByteBuf buf = chunk.content();
-        if (buf.isReadable()) {
-            if (charset != null) {
-                chunkActions.fire(buf.toString(charset));
-            } else {
-                chunkActions.fire(buf.nioBuffer());
-            }
+        if (buf.isReadable() && this.chunkAction != null) {
+            this.chunkAction.on(buf.nioBuffer());
         }
         if (chunk instanceof LastHttpContent) {
             endActions.fire();
@@ -128,19 +111,8 @@ public class NettyServerHttpExchange extends AbstractServerHttpExchange {
     }
 
     @Override
-    protected void doWrite(String data) {
-        byte[] bytes = data.getBytes(Charset.forName("UTF-8"));
-        ByteBuf buf = Unpooled.unreleasableBuffer(Unpooled.buffer(bytes.length)).writeBytes(bytes);
-        doWrite(buf);
-    }
-
-    @Override
     protected void doWrite(ByteBuffer byteBuffer) {
         ByteBuf buf = Unpooled.unreleasableBuffer(Unpooled.wrappedBuffer(byteBuffer));
-        doWrite(buf);
-    }
-
-    private void doWrite(ByteBuf buf) {
         if (!written) {
             written = true;
             context.write(response);
