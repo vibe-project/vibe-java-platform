@@ -60,26 +60,63 @@ public interface ServerHttpExchange extends Wrapper {
      * if no header is found.
      */
     List<String> headers(String name);
-    
+
     /**
      * Reads the request body. If the request header, {@code content-type},
      * starts with {@code text/}, the body is read as text, and if not, as
-     * binary.
+     * binary. In case of text body, the charset is also determined by the same
+     * header. If it's not given, {@code ISO-8859-1} is used by default.
      * <p>
      * The read data will be passed to event handlers attached through
-     * {@link ServerHttpExchange#chunkAction(Action)} or
-     * {@link ServerHttpExchange#bodyAction(Action)}. In the following cases,
+     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * <p>
+     * If the underlying platform can't read the request body asynchronously,
      * this method must be executed after adding chunk or body event handler.
-     * <p />
-     * <ul>
-     * <li>When the response has completed by {@link ServerHttpExchange#end()}</li>
-     * <li>When the underlying platform can't read the request body
-     * asynchronously</li>
-     * </ul>
      * <p />
      * This method has no side effect if called more than once.
      */
     ServerHttpExchange read();
+
+    /**
+     * Reads the request body as text. The charset is determined by the request
+     * header, {@code content-type}. If it's not given, {@code ISO-8859-1} is
+     * used by default.
+     * <p>
+     * The read data will be passed to event handlers attached through
+     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * <p>
+     * If the underlying platform can't read the request body asynchronously,
+     * this method must be executed after adding chunk or body event handler.
+     * <p />
+     * This method has no side effect if called more than once.
+     */
+    ServerHttpExchange readAsText();
+
+    /**
+     * Reads the request body as text using the given charset.
+     * <p>
+     * The read data will be passed to event handlers attached through
+     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * <p>
+     * If the underlying platform can't read the request body asynchronously,
+     * this method must be executed after adding chunk or body event handler.
+     * <p />
+     * This method has no side effect if called more than once.
+     */
+    ServerHttpExchange readAsText(String charsetName);
+
+    /**
+     * Reads the request body as binary.
+     * <p>
+     * The read data will be passed to event handlers attached through
+     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * <p>
+     * If the underlying platform can't read the request body asynchronously,
+     * this method must be executed after adding chunk or body event handler.
+     * <p />
+     * This method has no side effect if called more than once.
+     */
+    ServerHttpExchange readAsBinary();
     
     /**
      * Attaches an action to be called with a chunk from the request body. The
@@ -117,9 +154,16 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange setHeader(String name, Iterable<String> value);
 
     /**
-     * Writes a text chunk to the response body.
+     * Writes a text chunk to the response body using the charset from the
+     * response header, {@code content-type}. If it's not given,
+     * {@code ISO-8859-1} is used.
      */
     ServerHttpExchange write(String data);
+
+    /**
+     * Writes a text chunk to the response body using the given charset.
+     */
+    ServerHttpExchange write(String data, String charsetName);
 
     /**
      * Writes a binary chunk to the response body.
@@ -134,10 +178,17 @@ public interface ServerHttpExchange extends Wrapper {
     ServerHttpExchange end();
 
     /**
-     * Writes a text chunk to the response body and completes the response
-     * through {@link ServerHttpExchange#end()}.
+     * Writes a text chunk to the response body using the charset from the
+     * response header, {@code content-type} and completes the response through
+     * {@link ServerHttpExchange#end()}.
      */
     ServerHttpExchange end(String data);
+
+    /**
+     * Writes a text chunk to the response body using the given charset and
+     * completes the response through {@link ServerHttpExchange#end()}.
+     */
+    ServerHttpExchange end(String data, String charsetName);
 
     /**
      * Writes a binary chunk to the response body and completes the response

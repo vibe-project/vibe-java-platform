@@ -43,10 +43,16 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
     private final Actions<Object> chunkActions = new SimpleActions<>();
     private final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
+    private final Action<Void> fireClose = new VoidAction() {
+        @Override
+        public void on() {
+            closeActions.fire();
+        }
+    };
     private boolean read;
     private boolean readBody;
     private boolean ended;
-    private Charset writeCharset;
+    private String writeCharsetName = "ISO-8859-1";
 
     public AbstractServerHttpExchange() {
         endActions.add(new VoidAction() {
@@ -82,36 +88,14 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange read() {
         if (!read) {
-            read = true;
             if (hasTextBody()) {
-                final Charset charset = findCharset(header("content-type"));
-                doRead(new Action<ByteBuffer>() {
-                    @Override
-                    public void on(ByteBuffer byteBuffer) {
-                        chunkActions.fire(charset.decode(byteBuffer).toString());
-                    }
-                });
+                readAsText();
             } else {
-                doRead(new Action<ByteBuffer>() {
-                    @Override
-                    public void on(ByteBuffer byteBuffer) {
-                        chunkActions.fire(byteBuffer);
-                    }
-                });
-            }
-            if (ended) {
-                endActions.add(new VoidAction() {
-                    @Override
-                    public void on() {
-                        closeActions.fire();
-                    }
-                });
+                readAsBinary();
             }
         }
         return this;
     }
-
-    protected abstract void doRead(Action<ByteBuffer> chunkAction);
     
     private boolean hasTextBody() {
         // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
@@ -119,7 +103,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         return contentType != null && contentType.startsWith("text/");
     }
     
-    private Charset findCharset(String contentType) {
+    @Override
+    public ServerHttpExchange readAsText() {
+        return readAsText(findCharsetName(header("content-type")));
+    }
+
+    private String findCharsetName(String contentType) {
         // HTTP 1.1 says that the default charset is ISO-8859-1
         // http://www.w3.org/International/O-HTTP-charset#charset
         String charsetName = "ISO-8859-1";
@@ -129,8 +118,45 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
                 charsetName = contentType.substring(idx + "charset=".length());
             }
         }
-        return Charset.forName(charsetName);
+        return charsetName;
     }
+
+    @Override
+    public ServerHttpExchange readAsText(String charsetName) {
+        if (!read) {
+            read = true;
+            final Charset charset = Charset.forName(charsetName);
+            doRead(new Action<ByteBuffer>() {
+                @Override
+                public void on(ByteBuffer byteBuffer) {
+                    chunkActions.fire(charset.decode(byteBuffer).toString());
+                }
+            });
+            if (ended) {
+                endActions.add(fireClose);
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public ServerHttpExchange readAsBinary() {
+        if (!read) {
+            read = true;
+            doRead(new Action<ByteBuffer>() {
+                @Override
+                public void on(ByteBuffer byteBuffer) {
+                    chunkActions.fire(byteBuffer);
+                }
+            });
+            if (ended) {
+                endActions.add(fireClose);
+            }
+        }
+        return this;
+    }
+
+    protected abstract void doRead(Action<ByteBuffer> chunkAction);
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
@@ -212,7 +238,7 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         logger.trace("{} sets a response header {} to {}", this, name, value);
         // Intercepts content-type header to find charset
         if (name.equalsIgnoreCase("content-type")) {
-            writeCharset = findCharset(value);
+            writeCharsetName = findCharsetName(value);
         }
         doSetHeader(name, value);
         return this;
@@ -222,11 +248,13 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
     @Override
     public ServerHttpExchange write(String data) {
-        logger.trace("{} sends a text chunk {}", this, data);
-        if (writeCharset == null) {
-            writeCharset = findCharset(null);
-        }
-        doWrite(writeCharset.encode(data));
+        return write(data, writeCharsetName);
+    }
+
+    @Override
+    public ServerHttpExchange write(String data, String charsetName) {
+        logger.trace("{} sends a text chunk {} with charset {}", this, data, charsetName);
+        doWrite(Charset.forName(charsetName).encode(data));
         return this;
     }
 
@@ -246,12 +274,7 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
             ended = true;
             doEnd();
             if (read) {
-                endActions.add(new VoidAction() {
-                    @Override
-                    public void on() {
-                        closeActions.fire();
-                    }
-                });
+                endActions.add(fireClose);
             }
         }
         return this;
@@ -263,7 +286,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     public ServerHttpExchange end(String data) {
         return write(data).end();
     }
-    
+
+    @Override
+    public ServerHttpExchange end(String data, String charsetName) {
+        return write(data, charsetName).end();
+    }
+
     @Override
     public ServerHttpExchange end(ByteBuffer data) {
         return write(data).end();
