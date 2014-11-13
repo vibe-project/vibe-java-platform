@@ -202,17 +202,28 @@ public class AtmosphereServerHttpExchange extends AbstractServerHttpExchange {
 
         @Override
         void start() {
-            try {
-                read();
-                end();
-            } catch (IOException e) {
-                errorActions.fire(e);
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        read();
+                        end();
+                    } catch (IOException e) {
+                        errorActions.fire(e);
+                    }
+                }
+            })
+            .start();
         }
 
         @Override
         boolean ready() {
-            return true;
+            try {
+                return input.available() > 0;
+            } catch (IOException e) {
+                errorActions.fire(e);
+                return false;
+            }
         }
     }
 

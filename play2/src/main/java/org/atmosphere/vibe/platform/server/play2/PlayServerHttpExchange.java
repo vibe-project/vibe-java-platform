@@ -121,9 +121,18 @@ public class PlayServerHttpExchange extends AbstractServerHttpExchange {
     // Play can't read body asynchronously
     // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
     @Override
-    protected void doRead(Action<ByteBuffer> chunkAction) {
-        chunkAction.on(ByteBuffer.wrap(request.body().asRaw().asBytes()));
-        endActions.fire();
+    protected void doRead(final Action<ByteBuffer> chunkAction) {
+        // Using one of Play's thread pools may be a better way to go?
+        // https://www.playframework.com/documentation/2.3.x/ThreadPools
+        // TODO https://github.com/vibe-project/vibe-java-platform/issues/6
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                chunkAction.on(ByteBuffer.wrap(request.body().asRaw().asBytes()));
+                endActions.fire();
+            }
+        })
+        .start();
     }
     
     private void throwIfWritten() {

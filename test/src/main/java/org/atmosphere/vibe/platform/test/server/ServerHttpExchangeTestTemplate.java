@@ -592,13 +592,13 @@ public abstract class ServerHttpExchangeTestTemplate {
         performer.serverAction(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.endAction(new VoidAction() {
+                http.end().endAction(new VoidAction() {
                     @Override
                     public void on() {
                         reqEnded.set(true);
                     }
                 })
-                .read().end().closeAction(new VoidAction() {
+                .read().closeAction(new VoidAction() {
                     @Override
                     public void on() {
                         assertThat(reqEnded.get(), is(true));
