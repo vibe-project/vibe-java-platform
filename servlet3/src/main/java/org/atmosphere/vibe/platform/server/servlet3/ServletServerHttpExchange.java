@@ -58,12 +58,10 @@ public class ServletServerHttpExchange extends AbstractServerHttpExchange {
             public void onStartAsync(AsyncEvent event) throws IOException {}
 
             @Override
-            public void onTimeout(AsyncEvent event) throws IOException {
-                closeActions.fire();
-            }
+            public void onComplete(AsyncEvent event) throws IOException {}
 
             @Override
-            public void onComplete(AsyncEvent event) throws IOException {
+            public void onTimeout(AsyncEvent event) throws IOException {
                 closeActions.fire();
             }
 
