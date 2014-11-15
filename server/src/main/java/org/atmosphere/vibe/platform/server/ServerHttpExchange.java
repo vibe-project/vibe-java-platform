@@ -67,13 +67,15 @@ public interface ServerHttpExchange extends Wrapper {
      * binary. In case of text body, the charset is also determined by the same
      * header. If it's not given, {@code ISO-8859-1} is used by default.
      * <p>
-     * The read data will be passed to event handlers attached through
+     * The read data will be passed to event handlers as {@link String} if it's
+     * text and {@link ByteBuffer} if it's binary attached through
      * {@link ServerHttpExchange#chunkAction(Action)}.
      * <p>
-     * If the underlying platform can't read the request body asynchronously,
-     * this method must be executed after adding chunk or body event handler.
-     * <p />
-     * This method has no side effect if called more than once.
+     * This method should be called after adding
+     * {@link ServerHttpExchange#chunkAction(Action)},
+     * {@link ServerHttpExchange#bodyAction(Action)}, and
+     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
+     * called more than once.
      */
     ServerHttpExchange read();
 
@@ -82,39 +84,42 @@ public interface ServerHttpExchange extends Wrapper {
      * header, {@code content-type}. If it's not given, {@code ISO-8859-1} is
      * used by default.
      * <p>
-     * The read data will be passed to event handlers attached through
-     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * The read data will be passed to event handlers as {@link String} attached
+     * through {@link ServerHttpExchange#chunkAction(Action)}.
      * <p>
-     * If the underlying platform can't read the request body asynchronously,
-     * this method must be executed after adding chunk or body event handler.
-     * <p />
-     * This method has no side effect if called more than once.
+     * This method should be called after adding
+     * {@link ServerHttpExchange#chunkAction(Action)},
+     * {@link ServerHttpExchange#bodyAction(Action)}, and
+     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
+     * called more than once.
      */
     ServerHttpExchange readAsText();
 
     /**
      * Reads the request body as text using the given charset.
      * <p>
-     * The read data will be passed to event handlers attached through
-     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * The read data will be passed to event handlers as {@link String} attached
+     * through {@link ServerHttpExchange#chunkAction(Action)}.
      * <p>
-     * If the underlying platform can't read the request body asynchronously,
-     * this method must be executed after adding chunk or body event handler.
-     * <p />
-     * This method has no side effect if called more than once.
+     * This method should be called after adding
+     * {@link ServerHttpExchange#chunkAction(Action)},
+     * {@link ServerHttpExchange#bodyAction(Action)}, and
+     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
+     * called more than once.
      */
     ServerHttpExchange readAsText(String charsetName);
 
     /**
      * Reads the request body as binary.
      * <p>
-     * The read data will be passed to event handlers attached through
-     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * The read data will be passed to event handlers as {@link ByteBuffer}
+     * attached through {@link ServerHttpExchange#chunkAction(Action)}.
      * <p>
-     * If the underlying platform can't read the request body asynchronously,
-     * this method must be executed after adding chunk or body event handler.
-     * <p />
-     * This method has no side effect if called more than once.
+     * This method should be called after adding
+     * {@link ServerHttpExchange#chunkAction(Action)},
+     * {@link ServerHttpExchange#bodyAction(Action)}, and
+     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
+     * called more than once.
      */
     ServerHttpExchange readAsBinary();
     
