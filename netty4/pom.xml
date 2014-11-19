@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.atmosphere</groupId>
         <artifactId>vibe-platform-parent</artifactId>
-        <version>3.0.0-Alpha5-SNAPSHOT</version>
+        <version>3.0.0-Alpha5</version>
     </parent>
     <artifactId>vibe-platform-server-netty4</artifactId>
     <name>Netty 4 Bridge</name>
