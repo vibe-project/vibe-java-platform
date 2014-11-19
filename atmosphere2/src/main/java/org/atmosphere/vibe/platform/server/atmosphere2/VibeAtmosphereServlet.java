@@ -21,7 +21,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.atmosphere.cpr.AtmosphereResource;
-import org.atmosphere.cpr.AtmosphereResource.TRANSPORT;
+import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.cpr.AtmosphereServlet;
 import org.atmosphere.handler.AtmosphereHandlerAdapter;
 import org.atmosphere.vibe.platform.Action;
@@ -87,7 +87,7 @@ public class VibeAtmosphereServlet extends AtmosphereServlet {
         framework.addAtmosphereHandler("/", new AtmosphereHandlerAdapter() {
             @Override
             public void onRequest(AtmosphereResource resource) throws IOException {
-                if (resource.transport() == TRANSPORT.WEBSOCKET) {
+                if (isWebSocketResource(resource)) {
                     if (resource.getRequest().getMethod().equals("GET")) {
                         wsAction().on(new AtmosphereServerWebSocket(resource));
                     }
@@ -96,6 +96,16 @@ public class VibeAtmosphereServlet extends AtmosphereServlet {
                 }
             }
         });
+    }
+
+    /**
+     * Does the given {@link AtmosphereResource} represent WebSocket resource?
+     */
+    protected boolean isWebSocketResource(AtmosphereResource resource) {
+        // AtmosphereResponse returns itself on its getResponse method when there
+        // was no instance of ServletResponse given by the container. That's
+        // exactly the case of WebSocket.
+        return resource.getResponse().getResponse() instanceof AtmosphereResponse;
     }
 
     /**
