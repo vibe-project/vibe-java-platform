@@ -14,6 +14,7 @@
     <inceptionYear>2014</inceptionYear>
     <modules>
         <module>atmosphere2</module>
+        <module>grizzly2</module>
         <module>jwa1</module>
         <module>netty4</module>
         <module>play2</module>
@@ -57,6 +58,7 @@
         <logback.version>1.1.2</logback.version>
         <vertx.version>2.1.5</vertx.version>
         <jetty.version>9.2.5.v20141112</jetty.version>
+        <grizzly.version>2.3.17</grizzly.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -86,7 +88,7 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
-                 <scope>test</scope>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -157,6 +159,21 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>4.0.24.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-server</artifactId>
+                <version>${grizzly.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-websockets</artifactId>
+                <version>${grizzly.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.grizzly</groupId>
+                <artifactId>grizzly-http-servlet</artifactId>
+                <version>${grizzly.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

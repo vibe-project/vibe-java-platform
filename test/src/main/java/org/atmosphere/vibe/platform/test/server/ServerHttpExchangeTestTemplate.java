@@ -169,7 +169,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new StringContentProvider("A Breath Clad In Happiness"), "text/plain; charset=utf-8");
+                req.method(HttpMethod.POST).content(new StringContentProvider("A Breath Clad In Happiness"), "text/plain; charset=utf-8");
             }
         });
     }
@@ -199,7 +199,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new StringContentProvider("Day 7: Poem of the Ocean"), "application/octet-stream");
+                req.method(HttpMethod.POST).content(new StringContentProvider("Day 7: Poem of the Ocean"), "application/octet-stream");
             }
         });
     }
@@ -229,7 +229,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new StringContentProvider("시간 속에 만들어진 무대 위에 그대는 없다", "utf-8"), "text/plain; charset=euc-kr");
+                req.method(HttpMethod.POST).content(new StringContentProvider("시간 속에 만들어진 무대 위에 그대는 없다", "utf-8"), "text/plain; charset=euc-kr");
             }
         });
     }
@@ -261,7 +261,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new BytesContentProvider(new byte[] { 'h', 'i' }), "application/octet-stream");
+                req.method(HttpMethod.POST).content(new BytesContentProvider(new byte[] { 'h', 'i' }), "application/octet-stream");
             }
         });
     }
@@ -293,7 +293,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new BytesContentProvider(new byte[] { 'h', 'i' }), "text/plain");
+                req.method(HttpMethod.POST).content(new BytesContentProvider(new byte[] { 'h', 'i' }), "text/plain");
             }
         });
     }
@@ -323,7 +323,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new StringContentProvider("Blaze the Trail"));
+                req.method(HttpMethod.POST).content(new StringContentProvider("Blaze the Trail"));
             }
         });
     }
@@ -346,7 +346,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new StringContentProvider("A Breath Clad In Happiness"));
+                req.method(HttpMethod.POST).content(new StringContentProvider("A Breath Clad In Happiness"));
             }
         });
     }
@@ -369,7 +369,7 @@ public abstract class ServerHttpExchangeTestTemplate {
         .send(new Action<Request>() {
             @Override
             public void on(Request req) {
-                req.content(new BytesContentProvider(new byte[] { 'h', 'i' }));
+                req.method(HttpMethod.POST).content(new BytesContentProvider(new byte[] { 'h', 'i' }));
             }
         });
     }
