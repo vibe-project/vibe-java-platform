@@ -22,10 +22,10 @@ import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.server.ServerHttpExchangeTestTemplate;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.RouteMatcher;
 
 public class VertxServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
 
@@ -34,14 +34,19 @@ public class VertxServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
     @Override
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
-        server.requestHandler(new Handler<HttpServerRequest>() {
+        RouteMatcher matcher = new RouteMatcher();
+        matcher.all("/test", new VibeRequestHandler() {
             @Override
-            public void handle(HttpServerRequest req) {
-                if (req.path().equals("/test")) {
-                    performer.serverAction().on(new VertxServerHttpExchange(req));
-                }
+            protected Action<ServerHttpExchange> httpAction() {
+                return new Action<ServerHttpExchange>() {
+                    @Override
+                    public void on(ServerHttpExchange http) {
+                        performer.serverAction().on(http);
+                    }
+                };
             }
         });
+        server.requestHandler(matcher);
         server.listen(port);
     }
 
