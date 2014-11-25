@@ -24,12 +24,11 @@ import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 
 /**
  * Servlet to process {@link HttpServletRequest} and {@link HttpServletResponse}
- * into {@link ServerHttpExchange}. You need to configure this servlet and
- * provide your action to receive {@link ServerHttpExchange} by overriding
- * {@link VibeServlet#httpAction()} like the following usage. When you configure
- * servlet, you must set <strong><code>asyncSupported</code></strong> to
- * <strong><code>true</code></strong>.
+ * into {@link ServerHttpExchange}. When you configure servlet, you must set
+ * <strong><code>asyncSupported</code></strong> to <strong><code>true</code>
+ * </strong>.
  * <p>
+ * 
  * <pre>
  * ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), new VibeServlet() {
  *     {@literal @}Override
@@ -40,26 +39,11 @@ import org.atmosphere.vibe.platform.server.ServerHttpExchange;
  * <strong>reg.setAsyncSupported(true);</strong>
  * reg.addMapping("/vibe");
  * </pre>
- * <p>
- * With CDI, the following usage is also available.
- * <p>
- * <pre>
- * {@literal @}WebServlet(value = "/vibe", <strong>asyncSupported = true</strong>)
- * public class MyVibeServlet extends VibeServlet {
- *     {@literal @}Inject
- *     private Server server;
- *     
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- * }
- * </pre>
  *
  * @author Donghwan Kim
  */
 @SuppressWarnings("serial")
-public class VibeServlet extends HttpServlet {
+public abstract class VibeServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
@@ -67,12 +51,8 @@ public class VibeServlet extends HttpServlet {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerHttpExchange}.
      */
-    protected Action<ServerHttpExchange> httpAction() {
-        throw new IllegalStateException("Actiont to receive ServerHttpExchange is not set");
-    }
+    protected abstract Action<ServerHttpExchange> httpAction();
 
 }

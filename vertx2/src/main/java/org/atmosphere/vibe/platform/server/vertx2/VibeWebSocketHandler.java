@@ -21,9 +21,7 @@ import org.vertx.java.core.Handler;
 
 /**
  * Handler to process {@link org.vertx.java.core.http.ServerWebSocket} into
- * {@link VertxServerWebSocket}. You need to configure this handler and provide
- * your action to receive {@link ServerWebSocket} by overriding
- * {@link VibeWebSocketHandler#wsAction()} like the following usage.
+ * {@link VertxServerWebSocket}.
  * <p>
  * 
  * <pre>
@@ -37,7 +35,7 @@ import org.vertx.java.core.Handler;
  *
  * @author Donghwan Kim
  */
-public class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.ServerWebSocket> {
+public abstract class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.ServerWebSocket> {
 
     @Override
     public void handle(org.vertx.java.core.http.ServerWebSocket ws) {
@@ -45,12 +43,8 @@ public class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.Se
     }
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerWebSocket}.
      */
-    protected Action<ServerWebSocket> wsAction() {
-        throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
-    }
+    protected abstract Action<ServerWebSocket> wsAction();
 
 }

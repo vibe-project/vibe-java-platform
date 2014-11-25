@@ -27,13 +27,9 @@ import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 
 /**
- * Endpoint to process {@link Session} into {@link ServerWebSocket}. Once
- * {@link Session} is opened, {@link JwaServerWebSocket} is created and passed
- * to {@link VibeServerEndpoint#wsAction()}. So what you need to do is to
- * configure this endpoint and to provide your action to receive
- * {@link ServerWebSocket} by overriding {@link VibeServerEndpoint#wsAction()}
- * like the following usage.
+ * Endpoint to process {@link Session} into {@link ServerWebSocket}.
  * <p>
+ * 
  * <pre>
  * ServerEndpointConfig config = ServerEndpointConfig.Builder.create(VibeServerEndpoint.class, "/vibe")
  * .configurator(new Configurator() {
@@ -49,25 +45,10 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  * })
  * .build();
  * </pre>
- * <p>
- * With CDI, the following usage is also available.
- * <p>
- * <pre>
- * {@literal @}ServerEndpoint("/vibe")
- * public class MyVibeServerEndpoint extends VibeServerEndpoint {
- *     {@literal @}Inject
- *     private Server server;
- *     
- *     {@literal @}Override
- *     protected Action&ltServerWebSocket&gt wsAction() {
- *         return server.wsAction();
- *     }
- * }
- * </pre>
  *
  * @author Donghwan Kim
  */
-public class VibeServerEndpoint extends Endpoint {
+public abstract class VibeServerEndpoint extends Endpoint {
 
     private JwaServerWebSocket ws;
 
@@ -79,13 +60,9 @@ public class VibeServerEndpoint extends Endpoint {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerWebSocket}.
      */
-    protected Action<ServerWebSocket> wsAction() {
-        throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
-    }
+    protected abstract Action<ServerWebSocket> wsAction();
 
     @Override
     @OnError

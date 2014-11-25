@@ -27,15 +27,13 @@ import org.glassfish.grizzly.websockets.WebSocketApplication;
 
 /**
  * WebSocketApplication to process {@link WebSocket} into
- * {@link GrizzlyServerWebSocket}. You need to configure this handler and
- * provide your action to receive {@link ServerWebSocket} by overriding
- * {@link VibeWebSocketApplication#wsAction()} like the following usage.
+ * {@link GrizzlyServerWebSocket}.
  * <p>
  * 
  * <pre>
- * NetworkListener listener = server.getListener("grizzly");
+ * NetworkListener listener = httpServer.getListener("grizzly");
  * listener.registerAddOn(new WebSocketAddOn());
- * WebSocketEngine.getEngine().register("", "/test", new VibeWebSocketApplication() {
+ * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication() {
  *     {@literal @}Override
  *     protected Action&ltServerWebSocket&gt wsAction() {
  *         return server.wsAction();
@@ -45,7 +43,7 @@ import org.glassfish.grizzly.websockets.WebSocketApplication;
  *
  * @author Donghwan Kim
  */
-public class VibeWebSocketApplication extends WebSocketApplication {
+public abstract class VibeWebSocketApplication extends WebSocketApplication {
     
     // WebSocketApplication is already using WebSocket as a key of ConcurrentHashMap
     // From https://github.com/GrizzlyNIO/grizzly-mirror/blob/2_3_17/modules/websockets/src/main/java/org/glassfish/grizzly/websockets/WebSocketApplication.java#L63
@@ -60,13 +58,9 @@ public class VibeWebSocketApplication extends WebSocketApplication {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerWebSocket}.
      */
-    protected Action<ServerWebSocket> wsAction() {
-        throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
-    }
+    protected abstract Action<ServerWebSocket> wsAction();
     
     @Override
     public void onClose(WebSocket socket, DataFrame frame) {

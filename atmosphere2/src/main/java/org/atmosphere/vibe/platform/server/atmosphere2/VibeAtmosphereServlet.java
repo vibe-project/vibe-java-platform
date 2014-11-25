@@ -30,15 +30,13 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
 
 /**
  * Servlet to process {@link AtmosphereResource} into {@link ServerHttpExchange}
- * and {@link ServerWebSocket}. You need to configure this servlet and provide
- * your action to receive {@link ServerHttpExchange} and {@link ServerWebSocket}
- * by overriding {@link VibeAtmosphereServlet#httpAction()} and
- * {@link VibeAtmosphereServlet#wsAction()} like the following usage. When you configure
- * servlet, you must set <strong><code>asyncSupported</code></strong> to
- * <strong><code>true</code></strong> and set a init param, <strong>
+ * and {@link ServerWebSocket}. When you configure servlet, you must set
+ * <strong><code>asyncSupported</code></strong> to <strong><code>true</code>
+ * </strong> and set a init param, <strong>
  * <code>org.atmosphere.cpr.AtmosphereInterceptor.disableDefaults</code>
  * </strong>, to <strong><code>true</code></strong>.
  * <p>
+ * 
  * <pre>
  * ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), new VibeAtmosphereServlet() {
  *     {@literal @}Override
@@ -55,31 +53,11 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  * <strong>reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString())</strong>
  * reg.addMapping("/vibe");
  * </pre>
- * <p>
- * With CDI, the following usage is also available.
- * <p>
- * <pre>
- * {@literal @}WebServlet(value = "/vibe", <strong>asyncSupported = true</strong>, initParams = { <strong>{@literal @}WebInitParam(name = "org.atmosphere.cpr.AtmosphereInterceptor.disableDefaults", value = "true")</strong> })
- * public class MyVibeAtmosphereServlet extends VibeAtmosphereServlet {
- *     {@literal @}Inject
- *     private Server server;
- *     
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- *     
- *     {@literal @}Override
- *     protected Action&ltServerWebSocket&gt wsAction() {
- *         return server.wsAction();
- *     }
- * }
- * </pre>
  *
  * @author Donghwan Kim
  */
 @SuppressWarnings("serial")
-public class VibeAtmosphereServlet extends AtmosphereServlet {
+public abstract class VibeAtmosphereServlet extends AtmosphereServlet {
 
     @Override
     public void init(ServletConfig sc) throws ServletException {
@@ -102,28 +80,20 @@ public class VibeAtmosphereServlet extends AtmosphereServlet {
      * Does the given {@link AtmosphereResource} represent WebSocket resource?
      */
     protected boolean isWebSocketResource(AtmosphereResource resource) {
-        // AtmosphereResponse returns itself on its getResponse method when there
-        // was no instance of ServletResponse given by the container. That's
-        // exactly the case of WebSocket.
+        // AtmosphereResponse as HttpServletResponseWrapper returns itself on
+        // its getResponse method when there was no instance of ServletResponse
+        // given by the container. That's exactly the case of WebSocket.
         return resource.getResponse().getResponse() instanceof AtmosphereResponse;
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerHttpExchange}.
      */
-    protected Action<ServerHttpExchange> httpAction() {
-        throw new IllegalStateException("Actiont to receive ServerHttpExchange is not set");
-    }
+    protected abstract Action<ServerHttpExchange> httpAction();
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerWebSocket}.
      */
-    protected Action<ServerWebSocket> wsAction() {
-        throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
-    }
+    protected abstract Action<ServerWebSocket> wsAction();
 
 }

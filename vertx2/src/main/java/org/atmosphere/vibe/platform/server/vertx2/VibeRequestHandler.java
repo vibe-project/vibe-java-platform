@@ -22,9 +22,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 
 /**
  * Handler to process {@link HttpServerRequest} into
- * {@link VertxServerHttpExchange}. You need to configure this handler and
- * provide your action to receive {@link ServerHttpExchange} by overriding
- * {@link VibeRequestHandler#httpAction()} like the following usage.
+ * {@link VertxServerHttpExchange}.
  * <p>
  * 
  * <pre>
@@ -38,7 +36,7 @@ import org.vertx.java.core.http.HttpServerRequest;
  *
  * @author Donghwan Kim
  */
-public class VibeRequestHandler implements Handler<HttpServerRequest> {
+public abstract class VibeRequestHandler implements Handler<HttpServerRequest> {
 
     @Override
     public void handle(HttpServerRequest request) {
@@ -46,12 +44,8 @@ public class VibeRequestHandler implements Handler<HttpServerRequest> {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerHttpExchange}.
      */
-    protected Action<ServerHttpExchange> httpAction() {
-        throw new IllegalStateException("Actiont to receive ServerHttpExchange is not set");
-    }
+    protected abstract Action<ServerHttpExchange> httpAction();
 
 }

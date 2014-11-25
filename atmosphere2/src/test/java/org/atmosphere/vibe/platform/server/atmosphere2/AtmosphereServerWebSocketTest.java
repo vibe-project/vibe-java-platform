@@ -26,6 +26,7 @@ import javax.servlet.ServletRegistration;
 import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.vibe.platform.Action;
+import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.atmosphere.vibe.platform.test.server.ServerWebSocketTestTemplate;
 import org.eclipse.jetty.server.Server;
@@ -53,6 +54,11 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
                 ServletContext context = event.getServletContext();
                 @SuppressWarnings("serial")
                 ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), new VibeAtmosphereServlet() {
+                    @Override
+                    protected Action<ServerHttpExchange> httpAction() {
+                        return null;
+                    }
+
                     @Override
                     protected Action<ServerWebSocket> wsAction() {
                         return new Action<ServerWebSocket>() {

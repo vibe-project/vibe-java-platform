@@ -36,6 +36,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.URI;
 
 import org.atmosphere.vibe.platform.Action;
+import org.atmosphere.vibe.platform.server.ServerHttpExchange;
 import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.atmosphere.vibe.platform.test.server.ServerWebSocketTestTemplate;
 import org.junit.Test;
@@ -69,7 +70,12 @@ public class NettyServerWebSocketTest extends ServerWebSocketTestTemplate {
                     protected boolean accept(HttpRequest req) {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
-                    
+
+                    @Override
+                    protected Action<ServerHttpExchange> httpAction() {
+                        return null;
+                    }
+
                     @Override
                     public Action<ServerWebSocket> wsAction() {
                         return new Action<ServerWebSocket>() {

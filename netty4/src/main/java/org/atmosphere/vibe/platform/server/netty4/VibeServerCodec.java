@@ -43,13 +43,11 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
 
 /**
  * ChannelHandler to process {@link HttpRequest} and {@link HttpResponse} into
- * {@link NettyServerHttpExchange} and {@link NettyServerWebSocket}. You need to
- * configure this handler and provide your action to receive
- * {@link ServerHttpExchange} and {@link ServerWebSocket} by overriding
- * {@link VibeServerCodec#httpAction()} and {@link VibeServerCodec#wsAction()}
- * like the following usage. When you configure handler, you must add
- * <strong>{@link HttpServerCodec}</strong> in front of this handler.
+ * {@link NettyServerHttpExchange} and {@link NettyServerWebSocket}. When you
+ * configure handler, you must add <strong>{@link HttpServerCodec}</strong> in
+ * front of this handler.
  * <p>
+ * 
  * <pre>
  * 
  * ChannelPipeline pipeline = ch.pipeline();
@@ -74,7 +72,7 @@ import org.atmosphere.vibe.platform.server.ServerWebSocket;
  *
  * @author Donghwan Kim
  */
-public class VibeServerCodec extends ChannelInboundHandlerAdapter {
+public abstract class VibeServerCodec extends ChannelInboundHandlerAdapter {
 
     private final Map<Channel, NettyServerHttpExchange> httpMap = new ConcurrentHashMap<>();
     private final Map<Channel, NettyServerWebSocket> wsMap = new ConcurrentHashMap<>();
@@ -171,21 +169,13 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerHttpExchange}.
      */
-    protected Action<ServerHttpExchange> httpAction() {
-        throw new IllegalStateException("Actiont to receive ServerHttpExchange is not set");
-    }
+    protected abstract Action<ServerHttpExchange> httpAction();
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerWebSocket}.
      */
-    public Action<ServerWebSocket> wsAction() {
-        throw new IllegalStateException("Actiont to receive ServerWebSocket is not set");
-    }
+    public abstract Action<ServerWebSocket> wsAction();
 
 }

@@ -23,13 +23,11 @@ import org.glassfish.grizzly.http.server.Response;
 
 /**
  * HttpHandler to process {@link Request} and {@link Response} into
- * {@link GrizzlyServerHttpExchange}. You need to configure this handler and
- * provide your action to receive {@link ServerHttpExchange} by overriding
- * {@link VibeHttpHandler#httpAction()} like the following usage.
+ * {@link GrizzlyServerHttpExchange}.
  * <p>
  * 
  * <pre>
- * ServerConfiguration config = server.getServerConfiguration();
+ * ServerConfiguration config = httpServer.getServerConfiguration();
  * config.addHttpHandler(new VibeHttpHandler() {
  *     {@literal @}Override
  *     protected Action&ltServerHttpExchange&gt httpAction() {
@@ -40,7 +38,7 @@ import org.glassfish.grizzly.http.server.Response;
  *
  * @author Donghwan Kim
  */
-public class VibeHttpHandler extends HttpHandler {
+public abstract class VibeHttpHandler extends HttpHandler {
 
     @Override
     public void service(Request request, Response response) throws Exception {
@@ -48,12 +46,8 @@ public class VibeHttpHandler extends HttpHandler {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}. By default, it
-     * throws {@link IllegalStateException} so you should provide your action by
-     * overriding it.
+     * An {@link Action} to consume {@link ServerHttpExchange}.
      */
-    protected Action<ServerHttpExchange> httpAction() {
-        throw new IllegalStateException("Actiont to receive ServerHttpExchange is not set");
-    }
+    protected abstract Action<ServerHttpExchange> httpAction();
 
 }

@@ -36,6 +36,7 @@ import java.net.URI;
 
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
+import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.atmosphere.vibe.platform.test.server.ServerHttpExchangeTestTemplate;
 import org.junit.Test;
 
@@ -68,7 +69,7 @@ public class NettyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
                     protected boolean accept(HttpRequest req) {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
-                    
+
                     @Override
                     protected Action<ServerHttpExchange> httpAction() {
                         return new Action<ServerHttpExchange>() {
@@ -77,6 +78,11 @@ public class NettyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
                                 performer.serverAction().on(http);
                             }
                         };
+                    }
+
+                    @Override
+                    public Action<ServerWebSocket> wsAction() {
+                        return null;
                     }
                 });
             }

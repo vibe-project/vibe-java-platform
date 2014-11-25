@@ -27,6 +27,7 @@ import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.vibe.platform.Action;
 import org.atmosphere.vibe.platform.server.ServerHttpExchange;
+import org.atmosphere.vibe.platform.server.ServerWebSocket;
 import org.atmosphere.vibe.platform.test.server.ServerHttpExchangeTestTemplate;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -62,6 +63,11 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTestTemp
                                 performer.serverAction().on(http);
                             }
                         };
+                    }
+
+                    @Override
+                    protected Action<ServerWebSocket> wsAction() {
+                        return null;
                     }
                 });
                 reg.setAsyncSupported(true);
