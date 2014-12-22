@@ -58,13 +58,12 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
     }
 
     @Override
-    public ServerWebSocket close() {
+    public void close() {
         logger.trace("{} has started to close the connection", this);
         if (state != State.CLOSING && state != State.CLOSED) {
             state = State.CLOSING;
             doClose();
         }
-        return this;
     }
 
     protected abstract void doClose();

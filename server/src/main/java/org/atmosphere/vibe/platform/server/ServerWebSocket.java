@@ -40,7 +40,7 @@ public interface ServerWebSocket extends Wrapper {
      * Closes the connection. This method has no side effect if called more than
      * once.
      */
-    ServerWebSocket close();
+    void close();
 
     /**
      * Sends a text frame through the connection.
@@ -63,8 +63,8 @@ public interface ServerWebSocket extends Wrapper {
     ServerWebSocket binaryAction(Action<ByteBuffer> action);
 
     /**
-     * Attaches an action for the close event. After this event, all the other
-     * event will be disabled.
+     * Attaches an action for the close event. After this event, the instance
+     * shouldn't be used and all the other events will be disabled.
      */
     ServerWebSocket closeAction(Action<Void> action);
 

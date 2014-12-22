@@ -120,7 +120,8 @@ public abstract class ServerWebSocketTestTemplate {
         .serverAction(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
-                ws.close().close();
+                ws.close();
+                ws.close();
             }
         })
         .connect();
@@ -325,12 +326,13 @@ public abstract class ServerWebSocketTestTemplate {
         performer.serverAction(new Action<ServerWebSocket>() {
             @Override
             public void on(final ServerWebSocket ws) {
-                ws.close().closeAction(new VoidAction() {
+                ws.closeAction(new VoidAction() {
                     @Override
                     public void on() {
                         performer.start();
                     }
-                });
+                })
+                .close();
             }
         })
         .connect();
