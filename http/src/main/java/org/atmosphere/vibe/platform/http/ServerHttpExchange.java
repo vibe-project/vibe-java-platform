@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.action.Wrapper;
 
 /**
  * Represents a server-side HTTP request-response exchange.
@@ -31,7 +30,7 @@ import org.atmosphere.vibe.platform.action.Wrapper;
  * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">RFC2616 -
  *      Hypertext Transfer Protocol -- HTTP/1.1</a>
  */
-public interface ServerHttpExchange extends Wrapper {
+public interface ServerHttpExchange {
 
     /**
      * The request URI.
@@ -214,5 +213,10 @@ public interface ServerHttpExchange extends Wrapper {
      * disabled.
      */
     ServerHttpExchange closeAction(Action<Void> action);
+
+    /**
+     * Returns the provider-specific component.
+     */
+    <T> T unwrap(Class<T> clazz);
 
 }

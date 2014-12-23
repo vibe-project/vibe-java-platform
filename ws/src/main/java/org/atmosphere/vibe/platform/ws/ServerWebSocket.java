@@ -18,7 +18,6 @@ package org.atmosphere.vibe.platform.ws;
 import java.nio.ByteBuffer;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.action.Wrapper;
 
 /**
  * Represents a server-side WebSocket.
@@ -29,7 +28,7 @@ import org.atmosphere.vibe.platform.action.Wrapper;
  * @see <a href="http://tools.ietf.org/html/rfc6455">RFC6455 - The WebSocket
  *      Protocol</a>
  */
-public interface ServerWebSocket extends Wrapper {
+public interface ServerWebSocket {
 
     /**
      * The URI used to connect.
@@ -74,5 +73,10 @@ public interface ServerWebSocket extends Wrapper {
      * propagated.
      */
     ServerWebSocket errorAction(Action<Throwable> action);
+
+    /**
+     * Returns the provider-specific component.
+     */
+    <T> T unwrap(Class<T> clazz);
 
 }
