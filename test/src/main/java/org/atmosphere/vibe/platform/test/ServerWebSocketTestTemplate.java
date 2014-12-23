@@ -45,7 +45,7 @@ import org.junit.rules.Timeout;
 public abstract class ServerWebSocketTestTemplate {
 
     @Rule
-    public Timeout globalTimeout = new Timeout(10000);
+    public Timeout globalTimeout = Timeout.seconds(10);
     protected Performer performer;
     protected int port;
 
