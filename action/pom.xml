@@ -5,40 +5,28 @@
         <artifactId>vibe-platform-parent</artifactId>
         <version>3.0.0-Alpha7-SNAPSHOT</version>
     </parent>
-    <artifactId>vibe-platform-test</artifactId>
-    <name>Vibe Platform/Test</name>
+    <artifactId>vibe-platform-action</artifactId>
+    <name>Vibe Platform/Action</name>
     <dependencies>
         <dependency>
-            <groupId>org.atmosphere</groupId>
-            <artifactId>vibe-platform-action</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.atmosphere</groupId>
-            <artifactId>vibe-platform-http</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.atmosphere</groupId>
-            <artifactId>vibe-platform-ws</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-client</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-client</artifactId>
-            <scope>compile</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

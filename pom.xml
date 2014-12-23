@@ -9,19 +9,21 @@
     <artifactId>vibe-platform-parent</artifactId>
     <packaging>pom</packaging>
     <version>3.0.0-Alpha7-SNAPSHOT</version>
-    <name>Vibe Java Platform Parent</name>
+    <name>Vibe Platform</name>
     <url>http://vibe-project.github.io</url>
     <inceptionYear>2014</inceptionYear>
     <modules>
-        <module>atmosphere2</module>
-        <module>grizzly2</module>
-        <module>jwa1</module>
-        <module>netty4</module>
-        <module>play2</module>
-        <module>servlet3</module>
+        <module>action</module>
+        <module>http</module>
+        <module>ws</module>
         <module>test</module>
-        <module>vertx2</module>
-        <module>server</module>
+        <module>bridge-atmosphere2</module>
+        <module>bridge-grizzly2</module>
+        <module>bridge-jwa1</module>
+        <module>bridge-netty4</module>
+        <module>bridge-play2</module>
+        <module>bridge-servlet3</module>
+        <module>bridge-vertx2</module>
     </modules>
     <licenses>
         <license>
@@ -64,7 +66,17 @@
         <dependencies>
             <dependency>
                 <groupId>org.atmosphere</groupId>
-                <artifactId>vibe-platform-server</artifactId>
+                <artifactId>vibe-platform-action</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.atmosphere</groupId>
+                <artifactId>vibe-platform-http</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.atmosphere</groupId>
+                <artifactId>vibe-platform-ws</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
