@@ -47,8 +47,8 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
         });
         closeActions.add(new Action<Void>() {
             @Override
-            public void on(Void reason) {
-                logger.trace("{} has been closed due to the reason {}", AbstractServerWebSocket.this, reason);
+            public void on(Void _) {
+                logger.trace("{} has been closed", AbstractServerWebSocket.this);
                 state = State.CLOSED;
                 textActions.disable();
                 binaryActions.disable();
