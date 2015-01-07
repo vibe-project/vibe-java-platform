@@ -105,6 +105,6 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTestTemp
     @Override
     @Test
     @Ignore
-    public void closeAction_abnormal() {}
+    public void closeAction() {}
 
 }

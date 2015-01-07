@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.servlet3.VibeServlet;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
 import org.eclipse.jetty.server.Server;
@@ -99,6 +98,6 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
     @Override
     @Test
     @Ignore
-    public void closeAction_abnormal() {}
+    public void closeAction() {}
 
 }

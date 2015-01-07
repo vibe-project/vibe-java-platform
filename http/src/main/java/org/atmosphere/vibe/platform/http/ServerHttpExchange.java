@@ -120,7 +120,7 @@ public interface ServerHttpExchange {
      * called more than once.
      */
     ServerHttpExchange readAsBinary();
-    
+
     /**
      * Attaches an action to be called with a chunk from the request body. The
      * allowed data type is {@link String} for text body and {@link ByteBuffer}
@@ -137,7 +137,9 @@ public interface ServerHttpExchange {
     /**
      * Attaches an action to be called with the whole request body. The allowed
      * data type is {@link String} for text body and {@link ByteBuffer} for
-     * binary body. If the body is quite big, it may drain memory quickly.
+     * binary body. If the body is quite big, it may drain memory quickly. If
+     * that's the case, use {@link ServerHttpExchange#chunkAction(Action)} and
+     * {@link ServerHttpExchange#endAction(Action)}.
      */
     ServerHttpExchange bodyAction(Action<?> action);
 
@@ -200,6 +202,12 @@ public interface ServerHttpExchange {
     ServerHttpExchange end(ByteBuffer byteBuffer);
 
     /**
+     * Attaches an action to be called when the response is fully written. It's
+     * the end of the response.
+     */
+    ServerHttpExchange finishAction(Action<Void> action);
+
+    /**
      * Attaches an action to be called when this exchange gets an error. It may
      * or may not accompany the closure of connection. Its exact behavior is
      * platform-specific and error created by the platform is propagated.
@@ -207,9 +215,8 @@ public interface ServerHttpExchange {
     ServerHttpExchange errorAction(Action<Throwable> action);
 
     /**
-     * Attaches an action to be called when both request and response end
-     * successfully or the underlying connection is aborted for some reason like
-     * an error. After this event, all the other event will be
+     * Attaches an action when the underlying connection is aborted for some
+     * reason like an error. After this event, all the other event will be
      * disabled.
      */
     ServerHttpExchange closeAction(Action<Void> action);

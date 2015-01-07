@@ -42,12 +42,7 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     private final Logger logger = LoggerFactory.getLogger(AbstractServerHttpExchange.class);
     private final Actions<Object> chunkActions = new SimpleActions<>();
     private final Actions<Object> bodyActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
-    private final Action<Void> fireClose = new VoidAction() {
-        @Override
-        public void on() {
-            closeActions.fire();
-        }
-    };
+    private final Actions<Void> finishActions = new SimpleActions<>(new Actions.Options().once(true).memory(true));
     private boolean read;
     private boolean readBody;
     private boolean ended;
@@ -58,6 +53,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
             @Override
             public void on() {
                 logger.trace("{}'s request has ended", AbstractServerHttpExchange.this);
+            }
+        });
+        finishActions.add(new VoidAction() {
+            @Override
+            public void on() {
+                logger.trace("{}'s response has ended", AbstractServerHttpExchange.this);
             }
         });
         errorActions.add(new Action<Throwable>() {
@@ -73,6 +74,7 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
                 chunkActions.disable();
                 bodyActions.disable();
                 endActions.disable();
+                finishActions.disable();
                 errorActions.disable();
             }
         });
@@ -131,9 +133,6 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
                     chunkActions.fire(charset.decode(byteBuffer).toString());
                 }
             });
-            if (ended) {
-                endActions.add(fireClose);
-            }
         }
         return this;
     }
@@ -148,9 +147,6 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
                     chunkActions.fire(byteBuffer);
                 }
             });
-            if (ended) {
-                endActions.add(fireClose);
-            }
         }
         return this;
     }
@@ -272,9 +268,7 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
         if (!ended) {
             ended = true;
             doEnd();
-            if (read) {
-                endActions.add(fireClose);
-            }
+            finishActions.fire();
         }
         return this;
     }
@@ -294,6 +288,12 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     @Override
     public ServerHttpExchange end(ByteBuffer data) {
         return write(data).end();
+    }
+    
+    @Override
+    public ServerHttpExchange finishAction(Action<Void> action) {
+        finishActions.add(action);
+        return this;
     }
 
     @Override

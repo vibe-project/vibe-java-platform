@@ -16,12 +16,9 @@
 package org.atmosphere.vibe.platform.bridge.grizzly2;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.grizzly2.VibeHttpHandler;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.junit.Ignore;
-import org.junit.Test;
 
 public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
     
@@ -48,15 +45,5 @@ public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
     protected void stopServer() throws Exception {
         server.shutdownNow();
     }
-    
-    @Override
-    @Test
-    @Ignore
-    public void read_after_end() {}
-    
-    @Override
-    @Test
-    @Ignore
-    public void closeAction_response_end_request_end() {}
 
 }
