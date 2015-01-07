@@ -56,11 +56,11 @@
     </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.9</slf4j.version>
+        <slf4j.version>1.7.10</slf4j.version>
         <logback.version>1.1.2</logback.version>
         <vertx.version>2.1.5</vertx.version>
         <jetty.version>9.2.6.v20141205</jetty.version>
-        <grizzly.version>2.3.17</grizzly.version>
+        <grizzly.version>2.3.18</grizzly.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -170,7 +170,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
-                <version>4.0.24.Final</version>
+                <version>4.0.25.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.grizzly</groupId>
