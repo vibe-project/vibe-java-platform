@@ -34,12 +34,7 @@ public class GrizzlyServerWebSocketTest extends ServerWebSocketTestTemplate {
         WebSocketEngine.getEngine().register("", "/test", new VibeWebSocketApplication() {
             @Override
             protected Action<ServerWebSocket> wsAction() {
-                return new Action<ServerWebSocket>() {
-                    @Override
-                    public void on(ServerWebSocket ws) {
-                        performer.serverAction().on(ws);
-                    }
-                };
+                return performer.serverAction();
             }
         });
         server.start();

@@ -37,12 +37,7 @@ public class VertxServerWebSocketTest extends ServerWebSocketTestTemplate {
         final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler() {
             @Override
             protected Action<ServerWebSocket> wsAction() {
-                return new Action<ServerWebSocket>() {
-                    @Override
-                    public void on(ServerWebSocket ws) {
-                        performer.serverAction().on(ws);
-                    }
-                };
+                return performer.serverAction();
             };
         };
         server.websocketHandler(new Handler<org.vertx.java.core.http.ServerWebSocket>() {

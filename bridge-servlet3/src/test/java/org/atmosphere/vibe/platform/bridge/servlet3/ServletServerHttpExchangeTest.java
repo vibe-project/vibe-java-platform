@@ -56,12 +56,7 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
                 ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), new VibeServlet() {
                     @Override
                     protected Action<ServerHttpExchange> httpAction() {
-                        return new Action<ServerHttpExchange>() {
-                            @Override
-                            public void on(ServerHttpExchange http) {
-                                performer.serverAction().on(http);
-                            }
-                        };
+                        return performer.serverAction();
                     }
                 });
                 reg.setAsyncSupported(true);

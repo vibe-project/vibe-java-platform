@@ -62,12 +62,7 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
 
                     @Override
                     protected Action<ServerWebSocket> wsAction() {
-                        return new Action<ServerWebSocket>() {
-                            @Override
-                            public void on(ServerWebSocket ws) {
-                                performer.serverAction().on(ws);
-                            }
-                        };
+                        return performer.serverAction();
                     }
                 });
                 reg.setAsyncSupported(true);

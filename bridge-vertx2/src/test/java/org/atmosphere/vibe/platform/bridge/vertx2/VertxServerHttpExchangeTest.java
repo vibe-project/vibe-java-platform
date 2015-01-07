@@ -39,12 +39,7 @@ public class VertxServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
         matcher.all("/test", new VibeRequestHandler() {
             @Override
             protected Action<ServerHttpExchange> httpAction() {
-                return new Action<ServerHttpExchange>() {
-                    @Override
-                    public void on(ServerHttpExchange http) {
-                        performer.serverAction().on(http);
-                    }
-                };
+                return performer.serverAction();
             }
         });
         server.requestHandler(matcher);

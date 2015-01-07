@@ -79,12 +79,7 @@ public class NettyServerWebSocketTest extends ServerWebSocketTestTemplate {
 
                     @Override
                     public Action<ServerWebSocket> wsAction() {
-                        return new Action<ServerWebSocket>() {
-                            @Override
-                            public void on(ServerWebSocket ws) {
-                                performer.serverAction().on(ws);
-                            }
-                        };
+                        return performer.serverAction();
                     }
                 });
             }

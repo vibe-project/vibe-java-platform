@@ -58,12 +58,7 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTestTemp
                 ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), new VibeAtmosphereServlet() {
                     @Override
                     protected Action<ServerHttpExchange> httpAction() {
-                        return new Action<ServerHttpExchange>() {
-                            @Override
-                            public void on(ServerHttpExchange http) {
-                                performer.serverAction().on(http);
-                            }
-                        };
+                        return performer.serverAction();
                     }
 
                     @Override
