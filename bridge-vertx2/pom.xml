@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.atmosphere</groupId>
         <artifactId>vibe-platform-parent</artifactId>
-        <version>3.0.0-Alpha8</version>
+        <version>3.0.0-Alpha9-SNAPSHOT</version>
     </parent>
     <artifactId>vibe-platform-bridge-vertx2</artifactId>
     <name>Vibe Platform/Bridge/Vert.x 2</name>
