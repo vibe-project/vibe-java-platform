@@ -381,7 +381,12 @@ public abstract class ServerWebSocketTestTemplate {
         }
 
         public Action<ServerWebSocket> serverAction() {
-            return serverAction;
+            return new Action<ServerWebSocket>() {
+                @Override
+                public void on(ServerWebSocket ws) {
+                    serverAction.on(ws);
+                }
+            };
         }
 
         public Performer serverAction(Action<ServerWebSocket> serverAction) {

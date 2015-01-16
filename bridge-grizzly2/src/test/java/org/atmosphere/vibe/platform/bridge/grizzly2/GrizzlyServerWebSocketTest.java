@@ -15,11 +15,9 @@
  */
 package org.atmosphere.vibe.platform.bridge.grizzly2;
 
-import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.grizzly2.VibeWebSocketApplication;
 import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.websockets.WebSocketAddOn;
 import org.glassfish.grizzly.websockets.WebSocketEngine;
 
@@ -30,13 +28,9 @@ public class GrizzlyServerWebSocketTest extends ServerWebSocketTestTemplate {
     @Override
     protected void startServer() throws Exception {
         server = HttpServer.createSimpleServer(null, port);
-        server.getListener("grizzly").registerAddOn(new WebSocketAddOn());
-        WebSocketEngine.getEngine().register("", "/test", new VibeWebSocketApplication() {
-            @Override
-            protected Action<ServerWebSocket> wsAction() {
-                return performer.serverAction();
-            }
-        });
+        NetworkListener listener = server.getListener("grizzly");
+        listener.registerAddOn(new WebSocketAddOn());
+        WebSocketEngine.getEngine().register("", "/test", new VibeWebSocketApplication().wsAction(performer.serverAction()));
         server.start();
     }
 

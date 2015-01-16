@@ -25,6 +25,8 @@ import org.atmosphere.cpr.AtmosphereResponse;
 import org.atmosphere.cpr.AtmosphereServlet;
 import org.atmosphere.handler.AtmosphereHandlerAdapter;
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 
@@ -38,17 +40,8 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  * <p>
  * 
  * <pre>
- * ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), new VibeAtmosphereServlet() {
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- *     
- *     {@literal @}Override
- *     protected Action&ltServerWebSocket&gt wsAction() {
- *         return server.wsAction();
- *     }
- * });
+ * Servlet servlet = new VibeAtmosphereServlet().httpAction(http -&gt {}).wsAction(ws -&gt {});
+ * ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), servlet);
  * <strong>reg.setAsyncSupported(true);</strong>
  * <strong>reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString())</strong>
  * reg.addMapping("/vibe");
@@ -57,7 +50,10 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  * @author Donghwan Kim
  */
 @SuppressWarnings("serial")
-public abstract class VibeAtmosphereServlet extends AtmosphereServlet {
+public class VibeAtmosphereServlet extends AtmosphereServlet {
+    
+    private Actions<ServerHttpExchange> httpActions = new ConcurrentActions<>();
+    private Actions<ServerWebSocket> wsActions = new ConcurrentActions<>();
 
     @Override
     public void init(ServletConfig sc) throws ServletException {
@@ -67,10 +63,10 @@ public abstract class VibeAtmosphereServlet extends AtmosphereServlet {
             public void onRequest(AtmosphereResource resource) throws IOException {
                 if (isWebSocketResource(resource)) {
                     if (resource.getRequest().getMethod().equals("GET")) {
-                        wsAction().on(new AtmosphereServerWebSocket(resource));
+                        wsActions.fire(new AtmosphereServerWebSocket(resource));
                     }
                 } else {
-                    httpAction().on(new AtmosphereServerHttpExchange(resource));
+                    httpActions.fire(new AtmosphereServerHttpExchange(resource));
                 }
             }
         });
@@ -80,20 +76,28 @@ public abstract class VibeAtmosphereServlet extends AtmosphereServlet {
      * Does the given {@link AtmosphereResource} represent WebSocket resource?
      */
     protected boolean isWebSocketResource(AtmosphereResource resource) {
-        // AtmosphereResponse as HttpServletResponseWrapper returns itself on
+        // As HttpServletResponseWrapper, AtmosphereResponse returns itself on
         // its getResponse method when there was no instance of ServletResponse
         // given by the container. That's exactly the case of WebSocket.
         return resource.getResponse().getResponse() instanceof AtmosphereResponse;
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}.
+     * Registers an action to be called when {@link ServerHttpExchange} is
+     * available.
      */
-    protected abstract Action<ServerHttpExchange> httpAction();
+    public VibeAtmosphereServlet httpAction(Action<ServerHttpExchange> action) {
+        httpActions.add(action);
+        return this;
+    }
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}.
+     * Registers an action to be called when {@link ServerWebSocket} is
+     * available.
      */
-    protected abstract Action<ServerWebSocket> wsAction();
+    public VibeAtmosphereServlet wsAction(Action<ServerWebSocket> action) {
+        wsActions.add(action);
+        return this;
+    }
 
 }

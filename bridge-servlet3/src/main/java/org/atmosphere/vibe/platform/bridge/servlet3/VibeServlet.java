@@ -20,6 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 
 /**
@@ -30,12 +32,8 @@ import org.atmosphere.vibe.platform.http.ServerHttpExchange;
  * <p>
  * 
  * <pre>
- * ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), new VibeServlet() {
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- * });
+ * Servlet servlet = new VibeServlet().httpAction(http -&gt {});
+ * ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), servlet);
  * <strong>reg.setAsyncSupported(true);</strong>
  * reg.addMapping("/vibe");
  * </pre>
@@ -43,16 +41,21 @@ import org.atmosphere.vibe.platform.http.ServerHttpExchange;
  * @author Donghwan Kim
  */
 @SuppressWarnings("serial")
-public abstract class VibeServlet extends HttpServlet {
+public class VibeServlet extends HttpServlet {
+
+    private Actions<ServerHttpExchange> httpActions = new ConcurrentActions<>();
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
-        httpAction().on(new ServletServerHttpExchange(req, resp));
+        httpActions.fire(new ServletServerHttpExchange(req, resp));
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}.
+     * Registers an action to be called when {@link ServerHttpExchange} is
+     * available.
      */
-    protected abstract Action<ServerHttpExchange> httpAction();
-
+    public VibeServlet httpAction(Action<ServerHttpExchange> action) {
+        httpActions.add(action);
+        return this;
+    }
 }

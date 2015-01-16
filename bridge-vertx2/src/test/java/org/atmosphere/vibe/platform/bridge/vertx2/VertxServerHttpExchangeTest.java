@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.vertx2.VibeRequestHandler;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
 import org.junit.Test;
@@ -36,12 +35,7 @@ public class VertxServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
         RouteMatcher matcher = new RouteMatcher();
-        matcher.all("/test", new VibeRequestHandler() {
-            @Override
-            protected Action<ServerHttpExchange> httpAction() {
-                return performer.serverAction();
-            }
-        });
+        matcher.all("/test", new VibeRequestHandler().httpAction(performer.serverAction()));
         server.requestHandler(matcher);
         server.listen(port);
     }

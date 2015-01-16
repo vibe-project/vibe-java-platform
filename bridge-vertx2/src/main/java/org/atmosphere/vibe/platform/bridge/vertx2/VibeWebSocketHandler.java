@@ -16,6 +16,8 @@
 package org.atmosphere.vibe.platform.bridge.vertx2;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.vertx.java.core.Handler;
 
@@ -25,26 +27,27 @@ import org.vertx.java.core.Handler;
  * <p>
  * 
  * <pre>
- * httpServer.websocketHandler(new VibeWebSocketHandler() {
- *     {@literal @}Override
- *     protected Action&ltServerWebSocket&gt wsAction() {
- *         return server.wsAction();
- *     }
- * });
+ * httpServer.websocketHandler(new VibeWebSocketHandler().wsAction(http -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
  */
-public abstract class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.ServerWebSocket> {
+public class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.ServerWebSocket> {
+
+    private Actions<ServerWebSocket> wsActions = new ConcurrentActions<>();
 
     @Override
     public void handle(org.vertx.java.core.http.ServerWebSocket ws) {
-        wsAction().on(new VertxServerWebSocket(ws));
+        wsActions.fire(new VertxServerWebSocket(ws));
     }
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}.
+     * Registers an action to be called when {@link ServerWebSocket} is
+     * available.
      */
-    protected abstract Action<ServerWebSocket> wsAction();
+    public VibeWebSocketHandler wsAction(Action<ServerWebSocket> action) {
+        wsActions.add(action);
+        return this;
+    }
 
 }

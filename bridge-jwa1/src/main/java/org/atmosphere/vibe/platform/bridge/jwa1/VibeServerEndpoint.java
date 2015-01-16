@@ -24,10 +24,12 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 
 /**
- * Endpoint to process {@link Session} into {@link ServerWebSocket}.
+ * Endpoint to process {@link Endpoint} and {@link Session} into {@link ServerWebSocket}.
  * <p>
  * 
  * <pre>
@@ -35,12 +37,7 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  * .configurator(new Configurator() {
  *     {@literal @}Override
  *     protected &ltT&gt T getEndpointInstance(Class&ltT&gt endpointClass) throws InstantiationException {
- *         return endpointClass.cast(new VibeServerEndpoint() {
- *             {@literal @}Override
- *             public Action&ltServerWebSocket&gt wsAction() {
- *                 return server.wsAction();
- *             }
- *         });
+ *         return endpointClass.cast(new VibeServerEndpoint().wsAction(ws -&gt {}));
  *     }
  * })
  * .build();
@@ -48,21 +45,17 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  *
  * @author Donghwan Kim
  */
-public abstract class VibeServerEndpoint extends Endpoint {
+public class VibeServerEndpoint extends Endpoint {
 
+    private Actions<ServerWebSocket> wsActions = new ConcurrentActions<>();
     private JwaServerWebSocket ws;
 
     @Override
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
         ws = new JwaServerWebSocket(session);
-        wsAction().on(ws);
+        wsActions.fire(ws);
     }
-
-    /**
-     * An {@link Action} to consume {@link ServerWebSocket}.
-     */
-    protected abstract Action<ServerWebSocket> wsAction();
 
     @Override
     @OnError
@@ -74,6 +67,15 @@ public abstract class VibeServerEndpoint extends Endpoint {
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         ws.onClose();
+    }
+
+    /**
+     * Registers an action to be called when {@link ServerWebSocket} is
+     * available.
+     */
+    public VibeServerEndpoint wsAction(Action<ServerWebSocket> action) {
+        wsActions.add(action);
+        return this;
     }
 
 }

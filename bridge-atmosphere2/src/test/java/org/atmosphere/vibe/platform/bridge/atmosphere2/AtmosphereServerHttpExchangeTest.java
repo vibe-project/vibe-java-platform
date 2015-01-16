@@ -18,6 +18,7 @@ package org.atmosphere.vibe.platform.bridge.atmosphere2;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -26,10 +27,8 @@ import javax.servlet.ServletRegistration;
 import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.atmosphere2.VibeAtmosphereServlet;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -46,37 +45,22 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTestTemp
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);
         server.addConnector(connector);
-
-        // ServletContext
         ServletContextHandler handler = new ServletContextHandler();
-        server.setHandler(handler);
-        ServletContextListener listener = new ServletContextListener() {
+        handler.addEventListener(new ServletContextListener() {
             @Override
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
-                @SuppressWarnings("serial")
-                ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), new VibeAtmosphereServlet() {
-                    @Override
-                    protected Action<ServerHttpExchange> httpAction() {
-                        return performer.serverAction();
-                    }
-
-                    @Override
-                    protected Action<ServerWebSocket> wsAction() {
-                        return null;
-                    }
-                });
+                Servlet servlet = new VibeAtmosphereServlet().httpAction(performer.serverAction());
+                ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), servlet);
                 reg.setAsyncSupported(true);
                 reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString());
                 reg.addMapping("/test");
             }
 
             @Override
-            public void contextDestroyed(ServletContextEvent sce) {
-            }
-        };
-        handler.addEventListener(listener);
-
+            public void contextDestroyed(ServletContextEvent sce) {}
+        });
+        server.setHandler(handler);
         server.start();
     }
 

@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.vertx2.VibeWebSocketHandler;
 import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.junit.Test;
@@ -34,12 +33,7 @@ public class VertxServerWebSocketTest extends ServerWebSocketTestTemplate {
     @Override
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
-        final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler() {
-            @Override
-            protected Action<ServerWebSocket> wsAction() {
-                return performer.serverAction();
-            };
-        };
+        final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler().wsAction(performer.serverAction());
         server.websocketHandler(new Handler<org.vertx.java.core.http.ServerWebSocket>() {
             @Override
             public void handle(org.vertx.java.core.http.ServerWebSocket socket) {

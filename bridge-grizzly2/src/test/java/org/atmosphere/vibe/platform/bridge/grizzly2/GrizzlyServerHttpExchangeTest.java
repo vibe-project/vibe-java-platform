@@ -15,10 +15,9 @@
  */
 package org.atmosphere.vibe.platform.bridge.grizzly2;
 
-import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.ServerConfiguration;
 
 public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
     
@@ -27,12 +26,8 @@ public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
     @Override
     protected void startServer() throws Exception {
         server = HttpServer.createSimpleServer(null, port);
-        server.getServerConfiguration().addHttpHandler(new VibeHttpHandler() {
-            @Override
-            protected Action<ServerHttpExchange> httpAction() {
-                return performer.serverAction();
-            }
-        }, "/test");
+        ServerConfiguration config = server.getServerConfiguration();
+        config.addHttpHandler(new VibeHttpHandler().httpAction(performer.serverAction()), "/test");
         server.start();
     }
 

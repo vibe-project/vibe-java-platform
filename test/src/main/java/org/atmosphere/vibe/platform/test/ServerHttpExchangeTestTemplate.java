@@ -570,7 +570,12 @@ public abstract class ServerHttpExchangeTestTemplate {
         }
 
         public Action<ServerHttpExchange> serverAction() {
-            return serverAction;
+            return new Action<ServerHttpExchange>() {
+                @Override
+                public void on(ServerHttpExchange http) {
+                    serverAction.on(http);
+                }
+            };
         }
 
         public Performer serverAction(Action<ServerHttpExchange> serverAction) {

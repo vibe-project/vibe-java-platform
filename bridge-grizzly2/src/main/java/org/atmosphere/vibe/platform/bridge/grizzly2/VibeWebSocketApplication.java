@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.glassfish.grizzly.websockets.DataFrame;
 import org.glassfish.grizzly.websockets.DefaultWebSocket;
@@ -33,20 +35,14 @@ import org.glassfish.grizzly.websockets.WebSocketApplication;
  * <pre>
  * NetworkListener listener = httpServer.getListener("grizzly");
  * listener.registerAddOn(new WebSocketAddOn());
- * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication() {
- *     {@literal @}Override
- *     protected Action&ltServerWebSocket&gt wsAction() {
- *         return server.wsAction();
- *     }
- * });
+ * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication().wsAction(ws -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
  */
-public abstract class VibeWebSocketApplication extends WebSocketApplication {
+public class VibeWebSocketApplication extends WebSocketApplication {
     
-    // WebSocketApplication is already using WebSocket as a key of ConcurrentHashMap
-    // From https://github.com/GrizzlyNIO/grizzly-mirror/blob/2_3_17/modules/websockets/src/main/java/org/glassfish/grizzly/websockets/WebSocketApplication.java#L63
+    private Actions<ServerWebSocket> wsActions = new ConcurrentActions<>();
     private Map<WebSocket, GrizzlyServerWebSocket> sockets = new ConcurrentHashMap<>();
 
     @Override
@@ -54,13 +50,9 @@ public abstract class VibeWebSocketApplication extends WebSocketApplication {
         super.onConnect(socket);
         GrizzlyServerWebSocket ws = new GrizzlyServerWebSocket((DefaultWebSocket) socket);
         sockets.put(socket, ws);
-        wsAction().on(ws);
+        wsActions.fire(ws);
     }
 
-    /**
-     * An {@link Action} to consume {@link ServerWebSocket}.
-     */
-    protected abstract Action<ServerWebSocket> wsAction();
     
     @Override
     public void onClose(WebSocket socket, DataFrame frame) {
@@ -73,6 +65,15 @@ public abstract class VibeWebSocketApplication extends WebSocketApplication {
         boolean ret = super.onError(webSocket, t);
         sockets.get(webSocket).onError(t);
         return ret;
+    }
+
+    /**
+     * Registers an action to be called when {@link ServerWebSocket} is
+     * available.
+     */
+    public VibeWebSocketApplication wsAction(Action<ServerWebSocket> action) {
+        wsActions.add(action);
+        return this;
     }
 
 }

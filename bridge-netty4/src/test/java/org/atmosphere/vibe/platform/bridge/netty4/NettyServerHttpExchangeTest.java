@@ -35,10 +35,8 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.URI;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.bridge.netty4.VibeServerCodec;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.junit.Test;
 
 public class NettyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
@@ -70,17 +68,8 @@ public class NettyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate 
                     protected boolean accept(HttpRequest req) {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
-
-                    @Override
-                    protected Action<ServerHttpExchange> httpAction() {
-                        return performer.serverAction();
-                    }
-
-                    @Override
-                    public Action<ServerWebSocket> wsAction() {
-                        return null;
-                    }
-                });
+                }
+                .httpAction(performer.serverAction()));
             }
         });
         channels.add(bootstrap.bind(port).channel());

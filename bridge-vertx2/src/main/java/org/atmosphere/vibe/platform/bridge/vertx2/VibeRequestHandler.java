@@ -16,6 +16,8 @@
 package org.atmosphere.vibe.platform.bridge.vertx2;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -26,26 +28,28 @@ import org.vertx.java.core.http.HttpServerRequest;
  * <p>
  * 
  * <pre>
- * httpServer.requestHandler(new VibeRequestHandler() {
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- * });
+ * httpServer.requestHandler(new VibeRequestHandler().httpAction(http -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
  */
-public abstract class VibeRequestHandler implements Handler<HttpServerRequest> {
+public class VibeRequestHandler implements Handler<HttpServerRequest> {
+
+    private Actions<ServerHttpExchange> httpActions = new ConcurrentActions<>();
 
     @Override
     public void handle(HttpServerRequest request) {
-        httpAction().on(new VertxServerHttpExchange(request));
+        httpActions.fire(new VertxServerHttpExchange(request));
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}.
+     * Registers an action to be called when {@link ServerHttpExchange} is
+     * available.
      */
-    protected abstract Action<ServerHttpExchange> httpAction();
+    public VibeRequestHandler httpAction(Action<ServerHttpExchange> action) {
+        httpActions.add(action);
+        return this;
+    }
+
 
 }

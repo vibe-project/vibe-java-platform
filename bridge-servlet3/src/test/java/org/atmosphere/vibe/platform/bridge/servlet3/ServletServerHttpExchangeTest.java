@@ -18,6 +18,7 @@ package org.atmosphere.vibe.platform.bridge.servlet3;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -44,31 +45,21 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTestTemplat
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);
         server.addConnector(connector);
-
-        // ServletContext
         ServletContextHandler handler = new ServletContextHandler();
-        server.setHandler(handler);
-        ServletContextListener listener = new ServletContextListener() {
+        handler.addEventListener(new ServletContextListener() {
             @Override
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
-                @SuppressWarnings("serial")
-                ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), new VibeServlet() {
-                    @Override
-                    protected Action<ServerHttpExchange> httpAction() {
-                        return performer.serverAction();
-                    }
-                });
+                Servlet servlet = new VibeServlet().httpAction(performer.serverAction());
+                ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), servlet);
                 reg.setAsyncSupported(true);
                 reg.addMapping("/test");
             }
 
             @Override
-            public void contextDestroyed(ServletContextEvent sce) {
-            }
-        };
-        handler.addEventListener(listener);
-
+            public void contextDestroyed(ServletContextEvent sce) {}
+        });
+        server.setHandler(handler);
         server.start();
     }
 

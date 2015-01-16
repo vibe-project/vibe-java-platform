@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 
@@ -57,26 +59,19 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  *     protected boolean accept(HttpRequest req) {
  *         return URI.create(req.getUri()).getPath().equals("/vibe");
  *     }
- *     
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- *     
- *     {@literal @}Override
- *     public Action&ltServerWebSocket&gt wsAction() {
- *         return server.websocketAction();
- *     }
- * });
+ * }
+ * .httpAction(http -&gt {}).wsAction(ws -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
  */
-public abstract class VibeServerCodec extends ChannelInboundHandlerAdapter {
+public class VibeServerCodec extends ChannelInboundHandlerAdapter {
 
-    private final Map<Channel, NettyServerHttpExchange> httpMap = new ConcurrentHashMap<>();
-    private final Map<Channel, NettyServerWebSocket> wsMap = new ConcurrentHashMap<>();
-    private final Map<Channel, FullHttpRequest> wsReqMap = new ConcurrentHashMap<>();
+    private Actions<ServerHttpExchange> httpActions = new ConcurrentActions<>();
+    private Actions<ServerWebSocket> wsActions = new ConcurrentActions<>();
+    private Map<Channel, NettyServerHttpExchange> httpMap = new ConcurrentHashMap<>();
+    private Map<Channel, NettyServerWebSocket> wsMap = new ConcurrentHashMap<>();
+    private Map<Channel, FullHttpRequest> wsReqMap = new ConcurrentHashMap<>();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -95,7 +90,7 @@ public abstract class VibeServerCodec extends ChannelInboundHandlerAdapter {
             } else {
                 NettyServerHttpExchange http = new NettyServerHttpExchange(ctx, req);
                 httpMap.put(ctx.channel(), http);
-                httpAction().on(http);
+                httpActions.fire(http);
             }
         } else if (msg instanceof HttpContent) {
             FullHttpRequest wsReq = wsReqMap.get(ctx.channel());
@@ -113,7 +108,7 @@ public abstract class VibeServerCodec extends ChannelInboundHandlerAdapter {
                         handshaker.handshake(ctx.channel(), wsReq);
                         NettyServerWebSocket ws = new NettyServerWebSocket(ctx, wsReq, handshaker);
                         wsMap.put(ctx.channel(), ws);
-                        wsAction().on(ws);
+                        wsActions.fire(ws);
                     }
                 }
             } else {
@@ -169,13 +164,21 @@ public abstract class VibeServerCodec extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}.
+     * Registers an action to be called when {@link ServerHttpExchange} is
+     * available.
      */
-    protected abstract Action<ServerHttpExchange> httpAction();
+    public VibeServerCodec httpAction(Action<ServerHttpExchange> action) {
+        httpActions.add(action);
+        return this;
+    }
 
     /**
-     * An {@link Action} to consume {@link ServerWebSocket}.
+     * Registers an action to be called when {@link ServerWebSocket} is
+     * available.
      */
-    public abstract Action<ServerWebSocket> wsAction();
+    public VibeServerCodec wsAction(Action<ServerWebSocket> action) {
+        wsActions.add(action);
+        return this;
+    }
 
 }

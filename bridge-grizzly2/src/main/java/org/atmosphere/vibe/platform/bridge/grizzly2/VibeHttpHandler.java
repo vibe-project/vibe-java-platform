@@ -16,6 +16,8 @@
 package org.atmosphere.vibe.platform.bridge.grizzly2;
 
 import org.atmosphere.vibe.platform.action.Action;
+import org.atmosphere.vibe.platform.action.Actions;
+import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.Request;
@@ -28,26 +30,27 @@ import org.glassfish.grizzly.http.server.Response;
  * 
  * <pre>
  * ServerConfiguration config = httpServer.getServerConfiguration();
- * config.addHttpHandler(new VibeHttpHandler() {
- *     {@literal @}Override
- *     protected Action&ltServerHttpExchange&gt httpAction() {
- *         return server.httpAction();
- *     }
- * }, "/vibe");
+ * config.addHttpHandler(new VibeHttpHandler().httpAction(http -&gt {}), "/vibe");
  * </pre>
  *
  * @author Donghwan Kim
  */
-public abstract class VibeHttpHandler extends HttpHandler {
+public class VibeHttpHandler extends HttpHandler {
+
+    private Actions<ServerHttpExchange> httpActions = new ConcurrentActions<>();
 
     @Override
     public void service(Request request, Response response) throws Exception {
-        httpAction().on(new GrizzlyServerHttpExchange(request, response));
+        httpActions.fire(new GrizzlyServerHttpExchange(request, response));
     }
 
     /**
-     * An {@link Action} to consume {@link ServerHttpExchange}.
+     * Registers an action to be called when {@link ServerHttpExchange} is
+     * available.
      */
-    protected abstract Action<ServerHttpExchange> httpAction();
+    public VibeHttpHandler httpAction(Action<ServerHttpExchange> action) {
+        httpActions.add(action);
+        return this;
+    }
 
 }
