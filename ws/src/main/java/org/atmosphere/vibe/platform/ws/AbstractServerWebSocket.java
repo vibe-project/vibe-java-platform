@@ -48,11 +48,8 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
         closeActions.add(new Action<Void>() {
             @Override
             public void on(Void _) {
-                logger.trace("{} has been closed", AbstractServerWebSocket.this);
                 state = State.CLOSED;
-                textActions.disable();
-                binaryActions.disable();
-                errorActions.disable();
+                logger.trace("{} has been closed", AbstractServerWebSocket.this);
             }
         });
     }
@@ -115,10 +112,12 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
     /**
      * Represents the state of the connection.
      *
-     * @see <a href="http://www.w3.org/TR/websockets/#dom-websocket-readystate">The
-     * WebSocket API by W3C - The readyState attribute</a>
+     * @author Donghwan Kim
+     * @see <a
+     *      href="http://www.w3.org/TR/websockets/#dom-websocket-readystate">The
+     *      WebSocket API by W3C - The readyState attribute</a>
      */
-    static enum State {
+    private static enum State {
 
         /**
          * The connection has not yet been established.

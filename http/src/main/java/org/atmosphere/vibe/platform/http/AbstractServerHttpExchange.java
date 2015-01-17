@@ -71,11 +71,6 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
             @Override
             public void on() {
                 logger.trace("{} has been closed", AbstractServerHttpExchange.this);
-                chunkActions.disable();
-                bodyActions.disable();
-                endActions.disable();
-                finishActions.disable();
-                errorActions.disable();
             }
         });
     }
