@@ -78,6 +78,7 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
             HttpRequest req = (HttpRequest) msg;
             if (!accept(req)) {
+                ctx.fireChannelRead(msg);
                 return;
             }
             if (req.getMethod() == HttpMethod.GET && req.headers().contains(HttpHeaders.Names.UPGRADE, HttpHeaders.Values.WEBSOCKET, true)) {
