@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.atmosphere</groupId>
         <artifactId>vibe-platform-parent</artifactId>
-        <version>3.0.0-Alpha9-SNAPSHOT</version>
+        <version>3.0.0-Alpha9</version>
     </parent>
     <artifactId>vibe-platform-http</artifactId>
     <name>Vibe Platform/HTTP</name>
