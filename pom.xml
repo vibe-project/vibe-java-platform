@@ -59,7 +59,7 @@
         <slf4j.version>1.7.10</slf4j.version>
         <logback.version>1.1.2</logback.version>
         <vertx.version>2.1.5</vertx.version>
-        <jetty.version>9.2.6.v20141205</jetty.version>
+        <jetty.version>9.2.7.v20150116</jetty.version>
         <grizzly.version>2.3.18</grizzly.version>
     </properties>
     <dependencyManagement>
@@ -147,7 +147,7 @@
             <dependency>
                 <groupId>org.atmosphere</groupId>
                 <artifactId>atmosphere-runtime</artifactId>
-                <version>2.2.4</version>
+                <version>2.2.5</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
