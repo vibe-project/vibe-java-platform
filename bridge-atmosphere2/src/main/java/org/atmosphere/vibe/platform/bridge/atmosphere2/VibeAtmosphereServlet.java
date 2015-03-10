@@ -58,7 +58,7 @@ public class VibeAtmosphereServlet extends AtmosphereServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        framework.addAtmosphereHandler("/", new AtmosphereHandlerAdapter() {
+        framework().addAtmosphereHandler("/", new AtmosphereHandlerAdapter() {
             @Override
             public void onRequest(AtmosphereResource resource) throws IOException {
                 if (isWebSocketResource(resource)) {
