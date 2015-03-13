@@ -25,7 +25,7 @@ import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -49,7 +49,7 @@ public class JwaServerWebSocketTest extends ServerWebSocketTest {
         .configurator(new Configurator() {
             @Override
             public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
-                return endpointClass.cast(new VibeServerEndpoint().wsAction(performer.serverAction()));
+                return endpointClass.cast(new VibeServerEndpoint().websocketAction(performer.serverAction()));
             }
         })
         .build();

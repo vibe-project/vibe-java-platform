@@ -23,8 +23,8 @@ import java.nio.ByteBuffer;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.cpr.AtmosphereResourceEventListenerAdapter;
-import org.atmosphere.vibe.platform.ws.AbstractServerWebSocket;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.AbstractServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.atmosphere.websocket.WebSocketEventListenerAdapter;
 
 /**

@@ -18,7 +18,7 @@ package org.atmosphere.vibe.platform.bridge.vertx2;
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.ConcurrentActions;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.vertx.java.core.Handler;
 
 /**
@@ -27,7 +27,7 @@ import org.vertx.java.core.Handler;
  * <p>
  * 
  * <pre>
- * httpServer.websocketHandler(new VibeWebSocketHandler().wsAction(http -&gt {}));
+ * httpServer.websocketHandler(new VibeWebSocketHandler().websocketAction(http -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -45,7 +45,7 @@ public class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.Se
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeWebSocketHandler wsAction(Action<ServerWebSocket> action) {
+    public VibeWebSocketHandler websocketAction(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

@@ -19,8 +19,8 @@ import java.nio.ByteBuffer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.atmosphere.vibe.platform.ws.AbstractServerWebSocket;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.AbstractServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.glassfish.grizzly.websockets.DataFrame;
 import org.glassfish.grizzly.websockets.DefaultWebSocket;
 import org.glassfish.grizzly.websockets.WebSocket;

@@ -30,7 +30,7 @@ public class GrizzlyServerWebSocketTest extends ServerWebSocketTest {
         server = HttpServer.createSimpleServer(null, port);
         NetworkListener listener = server.getListener("grizzly");
         listener.registerAddOn(new WebSocketAddOn());
-        WebSocketEngine.getEngine().register("", "/test", new VibeWebSocketApplication().wsAction(performer.serverAction()));
+        WebSocketEngine.getEngine().register("", "/test", new VibeWebSocketApplication().websocketAction(performer.serverAction()));
         server.start();
     }
 

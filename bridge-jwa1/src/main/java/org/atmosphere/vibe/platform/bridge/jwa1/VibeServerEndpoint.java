@@ -26,7 +26,7 @@ import javax.websocket.Session;
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.ConcurrentActions;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 
 /**
  * Endpoint to process {@link Endpoint} and {@link Session} into {@link ServerWebSocket}.
@@ -37,7 +37,7 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  * .configurator(new Configurator() {
  *     {@literal @}Override
  *     protected &ltT&gt T getEndpointInstance(Class&ltT&gt endpointClass) throws InstantiationException {
- *         return endpointClass.cast(new VibeServerEndpoint().wsAction(ws -&gt {}));
+ *         return endpointClass.cast(new VibeServerEndpoint().websocketAction(ws -&gt {}));
  *     }
  * })
  * .build();
@@ -73,7 +73,7 @@ public class VibeServerEndpoint extends Endpoint {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeServerEndpoint wsAction(Action<ServerWebSocket> action) {
+    public VibeServerEndpoint websocketAction(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

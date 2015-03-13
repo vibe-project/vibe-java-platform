@@ -5,7 +5,7 @@
         <artifactId>vibe-platform-parent</artifactId>
         <version>3.0.0-Beta1-SNAPSHOT</version>
     </parent>
-    <artifactId>vibe-platform-ws</artifactId>
+    <artifactId>vibe-platform-websocket</artifactId>
     <name>Vibe Platform/WebSocket</name>
     <dependencies>
         <dependency>

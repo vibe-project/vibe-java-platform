@@ -26,8 +26,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 
 import java.nio.ByteBuffer;
 
-import org.atmosphere.vibe.platform.ws.AbstractServerWebSocket;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.AbstractServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 
 /**
  * {@link ServerWebSocket} for Netty 4.

@@ -37,7 +37,7 @@ import java.net.URI;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.junit.Test;
 
 public class NettyServerWebSocketTest extends ServerWebSocketTest {
@@ -70,7 +70,7 @@ public class NettyServerWebSocketTest extends ServerWebSocketTest {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
                 }
-                .wsAction(performer.serverAction()));
+                .websocketAction(performer.serverAction()));
             }
         });
         channels.add(bootstrap.bind(port).channel());

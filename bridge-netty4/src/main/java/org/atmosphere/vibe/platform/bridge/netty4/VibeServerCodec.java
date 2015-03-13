@@ -41,7 +41,7 @@ import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 
 /**
  * ChannelHandler to process {@link HttpRequest} and {@link HttpResponse} into
@@ -60,7 +60,7 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  *         return URI.create(req.getUri()).getPath().equals("/vibe");
  *     }
  * }
- * .httpAction(http -&gt {}).wsAction(ws -&gt {}));
+ * .httpAction(http -&gt {}).websocketAction(ws -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -177,7 +177,7 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeServerCodec wsAction(Action<ServerWebSocket> action) {
+    public VibeServerCodec websocketAction(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

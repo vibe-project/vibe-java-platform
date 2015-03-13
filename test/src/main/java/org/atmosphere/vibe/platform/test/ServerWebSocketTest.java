@@ -25,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.action.VoidAction;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.api.WebSocketListener;

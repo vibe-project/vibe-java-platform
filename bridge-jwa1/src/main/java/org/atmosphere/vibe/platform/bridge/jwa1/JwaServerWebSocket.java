@@ -24,8 +24,8 @@ import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 import javax.websocket.Session;
 
-import org.atmosphere.vibe.platform.ws.AbstractServerWebSocket;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.AbstractServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 
 /**
  * {@link ServerWebSocket} for Java WebSocket API 1.

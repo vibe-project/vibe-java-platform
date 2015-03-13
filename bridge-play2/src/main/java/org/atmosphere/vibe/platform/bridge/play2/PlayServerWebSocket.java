@@ -18,8 +18,8 @@ package org.atmosphere.vibe.platform.bridge.play2;
 import java.nio.ByteBuffer;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.ws.AbstractServerWebSocket;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.AbstractServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

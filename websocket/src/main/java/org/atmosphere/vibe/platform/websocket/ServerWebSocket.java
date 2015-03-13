@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.atmosphere.vibe.platform.ws;
+package org.atmosphere.vibe.platform.websocket;
 
 import java.nio.ByteBuffer;
 

@@ -28,7 +28,7 @@ import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -49,7 +49,7 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTest {
             @Override
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
-                Servlet servlet = new VibeAtmosphereServlet().wsAction(performer.serverAction());
+                Servlet servlet = new VibeAtmosphereServlet().websocketAction(performer.serverAction());
                 ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), servlet);
                 reg.setAsyncSupported(true);
                 reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString());

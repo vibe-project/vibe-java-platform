@@ -28,7 +28,7 @@ import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 
 /**
  * Servlet to process {@link AtmosphereResource} into {@link ServerHttpExchange}
@@ -40,7 +40,7 @@ import org.atmosphere.vibe.platform.ws.ServerWebSocket;
  * <p>
  * 
  * <pre>
- * Servlet servlet = new VibeAtmosphereServlet().httpAction(http -&gt {}).wsAction(ws -&gt {});
+ * Servlet servlet = new VibeAtmosphereServlet().httpAction(http -&gt {}).websocketAction(ws -&gt {});
  * ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), servlet);
  * <strong>reg.setAsyncSupported(true);</strong>
  * <strong>reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString())</strong>
@@ -95,7 +95,7 @@ public class VibeAtmosphereServlet extends AtmosphereServlet {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeAtmosphereServlet wsAction(Action<ServerWebSocket> action) {
+    public VibeAtmosphereServlet websocketAction(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

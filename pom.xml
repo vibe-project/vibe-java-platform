@@ -15,7 +15,7 @@
     <modules>
         <module>action</module>
         <module>http</module>
-        <module>ws</module>
+        <module>websocket</module>
         <module>test</module>
         <module>bridge-atmosphere2</module>
         <module>bridge-grizzly2</module>
@@ -76,7 +76,7 @@
             </dependency>
             <dependency>
                 <groupId>org.atmosphere</groupId>
-                <artifactId>vibe-platform-ws</artifactId>
+                <artifactId>vibe-platform-websocket</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.ConcurrentActions;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.glassfish.grizzly.websockets.DataFrame;
 import org.glassfish.grizzly.websockets.DefaultWebSocket;
 import org.glassfish.grizzly.websockets.WebSocket;
@@ -35,7 +35,7 @@ import org.glassfish.grizzly.websockets.WebSocketApplication;
  * <pre>
  * NetworkListener listener = httpServer.getListener("grizzly");
  * listener.registerAddOn(new WebSocketAddOn());
- * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication().wsAction(ws -&gt {}));
+ * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication().websocketAction(ws -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -71,7 +71,7 @@ public class VibeWebSocketApplication extends WebSocketApplication {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeWebSocketApplication wsAction(Action<ServerWebSocket> action) {
+    public VibeWebSocketApplication websocketAction(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

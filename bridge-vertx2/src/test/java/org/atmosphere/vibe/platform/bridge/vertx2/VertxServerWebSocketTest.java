@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
-import org.atmosphere.vibe.platform.ws.ServerWebSocket;
+import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
 import org.junit.Test;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.VertxFactory;
@@ -33,7 +33,7 @@ public class VertxServerWebSocketTest extends ServerWebSocketTest {
     @Override
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
-        final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler().wsAction(performer.serverAction());
+        final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler().websocketAction(performer.serverAction());
         server.websocketHandler(new Handler<org.vertx.java.core.http.ServerWebSocket>() {
             @Override
             public void handle(org.vertx.java.core.http.ServerWebSocket socket) {
