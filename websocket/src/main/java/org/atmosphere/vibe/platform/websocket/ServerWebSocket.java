@@ -54,25 +54,25 @@ public interface ServerWebSocket {
     /**
      * Attaches an action for the text frame.
      */
-    ServerWebSocket textAction(Action<String> action);
+    ServerWebSocket ontext(Action<String> action);
 
     /**
      * Attaches an action for the binary frame.
      */
-    ServerWebSocket binaryAction(Action<ByteBuffer> action);
+    ServerWebSocket onbinary(Action<ByteBuffer> action);
 
     /**
      * Attaches an action for the close event. After this event, the instance
      * shouldn't be used and all the other events will be disabled.
      */
-    ServerWebSocket closeAction(Action<Void> action);
+    ServerWebSocket onclose(Action<Void> action);
 
     /**
      * Attaches an action to handle error from various things. Its exact
      * behavior is platform-specific and error created by the platform is
      * propagated.
      */
-    ServerWebSocket errorAction(Action<Throwable> action);
+    ServerWebSocket onerror(Action<Throwable> action);
 
     /**
      * Returns the provider-specific component.

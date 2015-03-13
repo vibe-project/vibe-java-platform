@@ -60,7 +60,7 @@ import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
  *         return URI.create(req.getUri()).getPath().equals("/vibe");
  *     }
  * }
- * .httpAction(http -&gt {}).websocketAction(ws -&gt {}));
+ * .onhttp(http -&gt {}).onwebsocket(ws -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -168,7 +168,7 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
      * Registers an action to be called when {@link ServerHttpExchange} is
      * available.
      */
-    public VibeServerCodec httpAction(Action<ServerHttpExchange> action) {
+    public VibeServerCodec onhttp(Action<ServerHttpExchange> action) {
         httpActions.add(action);
         return this;
     }
@@ -177,7 +177,7 @@ public class VibeServerCodec extends ChannelInboundHandlerAdapter {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeServerCodec websocketAction(Action<ServerWebSocket> action) {
+    public VibeServerCodec onwebsocket(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

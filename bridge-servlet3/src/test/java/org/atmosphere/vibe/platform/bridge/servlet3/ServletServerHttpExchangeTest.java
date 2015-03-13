@@ -50,7 +50,7 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTest {
             @Override
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
-                Servlet servlet = new VibeServlet().httpAction(performer.serverAction());
+                Servlet servlet = new VibeServlet().onhttp(performer.serverAction());
                 ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), servlet);
                 reg.setAsyncSupported(true);
                 reg.addMapping("/test");
@@ -70,7 +70,7 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.unwrap(HttpServletRequest.class), instanceOf(HttpServletRequest.class));
@@ -84,6 +84,6 @@ public class ServletServerHttpExchangeTest extends ServerHttpExchangeTest {
     @Override
     @Test
     @Ignore
-    public void closeAction() {}
+    public void onclose() {}
 
 }

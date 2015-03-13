@@ -69,7 +69,7 @@ public class NettyServerHttpExchangeTest extends ServerHttpExchangeTest {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
                 }
-                .httpAction(performer.serverAction()));
+                .onhttp(performer.serverAction()));
             }
         });
         channels.add(bootstrap.bind(port).channel());
@@ -84,7 +84,7 @@ public class NettyServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.unwrap(ChannelHandlerContext.class), instanceOf(ChannelHandlerContext.class));

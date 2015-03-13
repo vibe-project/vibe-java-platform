@@ -32,7 +32,7 @@ import org.atmosphere.vibe.platform.http.ServerHttpExchange;
  * <p>
  * 
  * <pre>
- * Servlet servlet = new VibeServlet().httpAction(http -&gt {});
+ * Servlet servlet = new VibeServlet().onhttp(http -&gt {});
  * ServletRegistration.Dynamic reg = context.addServlet(VibeServlet.class.getName(), servlet);
  * <strong>reg.setAsyncSupported(true);</strong>
  * reg.addMapping("/vibe");
@@ -54,7 +54,7 @@ public class VibeServlet extends HttpServlet {
      * Registers an action to be called when {@link ServerHttpExchange} is
      * available.
      */
-    public VibeServlet httpAction(Action<ServerHttpExchange> action) {
+    public VibeServlet onhttp(Action<ServerHttpExchange> action) {
         httpActions.add(action);
         return this;
     }

@@ -49,7 +49,7 @@ public class JwaServerWebSocketTest extends ServerWebSocketTest {
         .configurator(new Configurator() {
             @Override
             public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
-                return endpointClass.cast(new VibeServerEndpoint().websocketAction(performer.serverAction()));
+                return endpointClass.cast(new VibeServerEndpoint().onwebsocket(performer.serverAction()));
             }
         })
         .build();
@@ -59,7 +59,7 @@ public class JwaServerWebSocketTest extends ServerWebSocketTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerWebSocket>() {
+        performer.onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 assertThat(ws.unwrap(Session.class), instanceOf(Session.class));

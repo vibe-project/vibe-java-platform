@@ -49,7 +49,7 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTest {
             @Override
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
-                Servlet servlet = new VibeAtmosphereServlet().websocketAction(performer.serverAction());
+                Servlet servlet = new VibeAtmosphereServlet().onwebsocket(performer.serverAction());
                 ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), servlet);
                 reg.setAsyncSupported(true);
                 reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString());
@@ -65,7 +65,7 @@ public class AtmosphereServerWebSocketTest extends ServerWebSocketTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerWebSocket>() {
+        performer.onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 assertThat(ws.unwrap(AtmosphereResource.class), instanceOf(AtmosphereResource.class));

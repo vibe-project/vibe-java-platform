@@ -35,7 +35,7 @@ public class VertxServerHttpExchangeTest extends ServerHttpExchangeTest {
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
         RouteMatcher matcher = new RouteMatcher();
-        matcher.all("/test", new VibeRequestHandler().httpAction(performer.serverAction()));
+        matcher.all("/test", new VibeRequestHandler().onhttp(performer.serverAction()));
         server.requestHandler(matcher);
         server.listen(port);
     }
@@ -47,7 +47,7 @@ public class VertxServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.unwrap(HttpServerRequest.class), instanceOf(HttpServerRequest.class));

@@ -67,13 +67,13 @@ public interface ServerHttpExchange {
      * <p>
      * The read data will be passed to event handlers as {@link String} if it's
      * text and {@link ByteBuffer} if it's binary attached through
-     * {@link ServerHttpExchange#chunkAction(Action)}.
+     * {@link ServerHttpExchange#onchunk(Action)}.
      * <p>
      * This method should be called after adding
-     * {@link ServerHttpExchange#chunkAction(Action)},
-     * {@link ServerHttpExchange#bodyAction(Action)}, and
-     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
-     * called more than once.
+     * {@link ServerHttpExchange#onchunk(Action)},
+     * {@link ServerHttpExchange#onbody(Action)}, and
+     * {@link ServerHttpExchange#onend(Action)} and has no side effect if called
+     * more than once.
      */
     ServerHttpExchange read();
 
@@ -83,13 +83,13 @@ public interface ServerHttpExchange {
      * used by default.
      * <p>
      * The read data will be passed to event handlers as {@link String} attached
-     * through {@link ServerHttpExchange#chunkAction(Action)}.
+     * through {@link ServerHttpExchange#onchunk(Action)}.
      * <p>
      * This method should be called after adding
-     * {@link ServerHttpExchange#chunkAction(Action)},
-     * {@link ServerHttpExchange#bodyAction(Action)}, and
-     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
-     * called more than once.
+     * {@link ServerHttpExchange#onchunk(Action)},
+     * {@link ServerHttpExchange#onbody(Action)}, and
+     * {@link ServerHttpExchange#onend(Action)} and has no side effect if called
+     * more than once.
      */
     ServerHttpExchange readAsText();
 
@@ -97,13 +97,13 @@ public interface ServerHttpExchange {
      * Reads the request body as text using the given charset.
      * <p>
      * The read data will be passed to event handlers as {@link String} attached
-     * through {@link ServerHttpExchange#chunkAction(Action)}.
+     * through {@link ServerHttpExchange#onchunk(Action)}.
      * <p>
      * This method should be called after adding
-     * {@link ServerHttpExchange#chunkAction(Action)},
-     * {@link ServerHttpExchange#bodyAction(Action)}, and
-     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
-     * called more than once.
+     * {@link ServerHttpExchange#onchunk(Action)},
+     * {@link ServerHttpExchange#onbody(Action)}, and
+     * {@link ServerHttpExchange#onend(Action)} and has no side effect if called
+     * more than once.
      */
     ServerHttpExchange readAsText(String charsetName);
 
@@ -111,13 +111,13 @@ public interface ServerHttpExchange {
      * Reads the request body as binary.
      * <p>
      * The read data will be passed to event handlers as {@link ByteBuffer}
-     * attached through {@link ServerHttpExchange#chunkAction(Action)}.
+     * attached through {@link ServerHttpExchange#onchunk(Action)}.
      * <p>
      * This method should be called after adding
-     * {@link ServerHttpExchange#chunkAction(Action)},
-     * {@link ServerHttpExchange#bodyAction(Action)}, and
-     * {@link ServerHttpExchange#endAction(Action)} and has no side effect if
-     * called more than once.
+     * {@link ServerHttpExchange#onchunk(Action)},
+     * {@link ServerHttpExchange#onbody(Action)}, and
+     * {@link ServerHttpExchange#onend(Action)} and has no side effect if called
+     * more than once.
      */
     ServerHttpExchange readAsBinary();
 
@@ -126,22 +126,22 @@ public interface ServerHttpExchange {
      * allowed data type is {@link String} for text body and {@link ByteBuffer}
      * for binary body.
      */
-    ServerHttpExchange chunkAction(Action<?> action);
+    ServerHttpExchange onchunk(Action<?> action);
     
     /**
      * Attaches an action to be called when the request is fully read. It's the
      * end of the request.
      */
-    ServerHttpExchange endAction(Action<Void> action);
+    ServerHttpExchange onend(Action<Void> action);
 
     /**
      * Attaches an action to be called with the whole request body. The allowed
      * data type is {@link String} for text body and {@link ByteBuffer} for
      * binary body. If the body is quite big, it may drain memory quickly. If
-     * that's the case, use {@link ServerHttpExchange#chunkAction(Action)} and
-     * {@link ServerHttpExchange#endAction(Action)}.
+     * that's the case, use {@link ServerHttpExchange#onchunk(Action)} and
+     * {@link ServerHttpExchange#onend(Action)}.
      */
-    ServerHttpExchange bodyAction(Action<?> action);
+    ServerHttpExchange onbody(Action<?> action);
 
     /**
      * Sets the HTTP status for the response.
@@ -205,21 +205,21 @@ public interface ServerHttpExchange {
      * Attaches an action to be called when the response is fully written. It's
      * the end of the response.
      */
-    ServerHttpExchange finishAction(Action<Void> action);
+    ServerHttpExchange onfinish(Action<Void> action);
 
     /**
      * Attaches an action to be called when this exchange gets an error. It may
      * or may not accompany the closure of connection. Its exact behavior is
      * platform-specific and error created by the platform is propagated.
      */
-    ServerHttpExchange errorAction(Action<Throwable> action);
+    ServerHttpExchange onerror(Action<Throwable> action);
 
     /**
      * Attaches an action when the underlying connection is aborted for some
      * reason like an error. After this event, all the other event will be
      * disabled.
      */
-    ServerHttpExchange closeAction(Action<Void> action);
+    ServerHttpExchange onclose(Action<Void> action);
 
     /**
      * Returns the provider-specific component.

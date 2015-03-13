@@ -25,9 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.action.Actions;
-import org.atmosphere.vibe.platform.action.VoidAction;
 import org.atmosphere.vibe.platform.action.Actions.Options;
 import org.junit.Test;
 

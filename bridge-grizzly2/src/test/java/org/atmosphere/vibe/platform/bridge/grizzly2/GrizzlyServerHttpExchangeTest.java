@@ -27,7 +27,7 @@ public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTest {
     protected void startServer() throws Exception {
         server = HttpServer.createSimpleServer(null, port);
         ServerConfiguration config = server.getServerConfiguration();
-        config.addHttpHandler(new VibeHttpHandler().httpAction(performer.serverAction()), "/test");
+        config.addHttpHandler(new VibeHttpHandler().onhttp(performer.serverAction()), "/test");
         server.start();
     }
 

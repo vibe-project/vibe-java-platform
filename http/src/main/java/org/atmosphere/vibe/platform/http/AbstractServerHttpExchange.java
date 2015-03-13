@@ -150,20 +150,20 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ServerHttpExchange chunkAction(Action action) {
+    public ServerHttpExchange onchunk(Action action) {
         chunkActions.add(action);
         return this;
     }
     
     @Override
-    public ServerHttpExchange endAction(Action<Void> action) {
+    public ServerHttpExchange onend(Action<Void> action) {
         endActions.add(action);
         return this;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ServerHttpExchange bodyAction(Action action) {
+    public ServerHttpExchange onbody(Action action) {
         if (!readBody) {
             readBody = true;
             if (hasTextBody()) {
@@ -286,19 +286,19 @@ public abstract class AbstractServerHttpExchange implements ServerHttpExchange {
     }
     
     @Override
-    public ServerHttpExchange finishAction(Action<Void> action) {
+    public ServerHttpExchange onfinish(Action<Void> action) {
         finishActions.add(action);
         return this;
     }
 
     @Override
-    public ServerHttpExchange closeAction(Action<Void> action) {
+    public ServerHttpExchange onclose(Action<Void> action) {
         closeActions.add(action);
         return this;
     }
 
     @Override
-    public ServerHttpExchange errorAction(Action<Throwable> action) {
+    public ServerHttpExchange onerror(Action<Throwable> action) {
         errorActions.add(action);
         return this;
     }

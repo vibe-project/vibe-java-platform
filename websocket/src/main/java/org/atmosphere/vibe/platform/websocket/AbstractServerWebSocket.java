@@ -86,25 +86,25 @@ public abstract class AbstractServerWebSocket implements ServerWebSocket {
     protected abstract void doSend(String data);
 
     @Override
-    public ServerWebSocket textAction(Action<String> action) {
+    public ServerWebSocket ontext(Action<String> action) {
         textActions.add(action);
         return this;
     }
 
     @Override
-    public ServerWebSocket binaryAction(Action<ByteBuffer> action) {
+    public ServerWebSocket onbinary(Action<ByteBuffer> action) {
         binaryActions.add(action);
         return this;
     }
 
     @Override
-    public ServerWebSocket closeAction(Action<Void> action) {
+    public ServerWebSocket onclose(Action<Void> action) {
         closeActions.add(action);
         return this;
     }
 
     @Override
-    public ServerWebSocket errorAction(Action<Throwable> action) {
+    public ServerWebSocket onerror(Action<Throwable> action) {
         errorActions.add(action);
         return this;
     }

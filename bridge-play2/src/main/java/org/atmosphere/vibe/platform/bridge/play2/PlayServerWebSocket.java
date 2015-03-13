@@ -61,7 +61,7 @@ public class PlayServerWebSocket extends AbstractServerWebSocket {
     }
     
     @Override
-    public ServerWebSocket binaryAction(Action<ByteBuffer> action) {
+    public ServerWebSocket onbinary(Action<ByteBuffer> action) {
         // TODO https://github.com/vibe-project/vibe-java-platform/issues/4
         log.error("Play Java API doesn't allow to receive text and binary frame together in a single connection");
         return this;

@@ -28,7 +28,7 @@ import org.vertx.java.core.http.HttpServerRequest;
  * <p>
  * 
  * <pre>
- * httpServer.requestHandler(new VibeRequestHandler().httpAction(http -&gt {}));
+ * httpServer.requestHandler(new VibeRequestHandler().onhttp(http -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -46,7 +46,7 @@ public class VibeRequestHandler implements Handler<HttpServerRequest> {
      * Registers an action to be called when {@link ServerHttpExchange} is
      * available.
      */
-    public VibeRequestHandler httpAction(Action<ServerHttpExchange> action) {
+    public VibeRequestHandler onhttp(Action<ServerHttpExchange> action) {
         httpActions.add(action);
         return this;
     }

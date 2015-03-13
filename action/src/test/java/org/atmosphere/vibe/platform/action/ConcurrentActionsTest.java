@@ -15,8 +15,6 @@
  */
 package org.atmosphere.vibe.platform.action;
 
-import org.atmosphere.vibe.platform.action.Actions;
-import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.action.Actions.Options;
 
 public class ConcurrentActionsTest extends ActionsTest {

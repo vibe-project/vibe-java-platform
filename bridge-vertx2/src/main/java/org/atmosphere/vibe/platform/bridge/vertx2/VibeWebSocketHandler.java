@@ -27,7 +27,7 @@ import org.vertx.java.core.Handler;
  * <p>
  * 
  * <pre>
- * httpServer.websocketHandler(new VibeWebSocketHandler().websocketAction(http -&gt {}));
+ * httpServer.websocketHandler(new VibeWebSocketHandler().onwebsocket(http -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -45,7 +45,7 @@ public class VibeWebSocketHandler implements Handler<org.vertx.java.core.http.Se
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeWebSocketHandler websocketAction(Action<ServerWebSocket> action) {
+    public VibeWebSocketHandler onwebsocket(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

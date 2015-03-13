@@ -82,7 +82,7 @@ public abstract class ServerWebSocketTest {
 
     @Test
     public void uri() {
-        performer.serverAction(new Action<ServerWebSocket>() {
+        performer.onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 assertThat(ws.uri(), is("/test?hello=there"));
@@ -100,7 +100,7 @@ public abstract class ServerWebSocketTest {
                 performer.start();
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 ws.close();
@@ -117,7 +117,7 @@ public abstract class ServerWebSocketTest {
                 performer.start();
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 ws.close();
@@ -136,7 +136,7 @@ public abstract class ServerWebSocketTest {
                 performer.start();
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 ws.send("A Will Remains in the Ashes");
@@ -154,7 +154,7 @@ public abstract class ServerWebSocketTest {
                 performer.start();
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 ws.send(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }).asReadOnlyBuffer());
@@ -186,7 +186,7 @@ public abstract class ServerWebSocketTest {
                 }
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 ws.send("A Will Remains in the Ashes").send(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
@@ -196,7 +196,7 @@ public abstract class ServerWebSocketTest {
     }
 
     @Test
-    public void textAction() {
+    public void ontext() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
             public void onWebSocketConnect(Session sess) {
@@ -213,10 +213,10 @@ public abstract class ServerWebSocketTest {
                 });
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
-                ws.textAction(new Action<String>() {
+                ws.ontext(new Action<String>() {
                     @Override
                     public void on(String data) {
                         assertThat(data, is("A road of winds the water builds"));
@@ -229,7 +229,7 @@ public abstract class ServerWebSocketTest {
     }
 
     @Test
-    public void binaryAction() {
+    public void onbinary() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
             public void onWebSocketConnect(Session sess) {
@@ -246,10 +246,10 @@ public abstract class ServerWebSocketTest {
                 });
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
-                ws.binaryAction(new Action<ByteBuffer>() {
+                ws.onbinary(new Action<ByteBuffer>() {
                     @Override
                     public void on(ByteBuffer data) {
                         assertThat(data, is(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })));
@@ -262,7 +262,7 @@ public abstract class ServerWebSocketTest {
     }
 
     @Test
-    public void textAction_and_binaryAction() {
+    public void ontext_and_onbinary() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
             public void onWebSocketConnect(Session sess) {
@@ -290,11 +290,11 @@ public abstract class ServerWebSocketTest {
                 });
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             boolean done;
             @Override
             public void on(ServerWebSocket ws) {
-                ws.textAction(new Action<String>() {
+                ws.ontext(new Action<String>() {
                     @Override
                     public void on(String data) {
                         assertThat(data, is("A road of winds the water builds"));
@@ -305,7 +305,7 @@ public abstract class ServerWebSocketTest {
                         }
                     }
                 })
-                .binaryAction(new Action<ByteBuffer>() {
+                .onbinary(new Action<ByteBuffer>() {
                     @Override
                     public void on(ByteBuffer data) {
                         assertThat(data, is(ByteBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })));
@@ -322,11 +322,11 @@ public abstract class ServerWebSocketTest {
     }
 
     @Test
-    public void closeAction_by_server() {
-        performer.serverAction(new Action<ServerWebSocket>() {
+    public void onclose_by_server() {
+        performer.onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(final ServerWebSocket ws) {
-                ws.closeAction(new VoidAction() {
+                ws.onclose(new VoidAction() {
                     @Override
                     public void on() {
                         performer.start();
@@ -339,17 +339,17 @@ public abstract class ServerWebSocketTest {
     }
 
     @Test
-    public void closeAction_by_client() {
+    public void onclose_by_client() {
         performer.clientListener(new WebSocketAdapter() {
             @Override
             public void onWebSocketConnect(Session sess) {
                 sess.close();
             }
         })
-        .serverAction(new Action<ServerWebSocket>() {
+        .onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
-                ws.closeAction(new VoidAction() {
+                ws.onclose(new VoidAction() {
                     @Override
                     public void on() {
                         performer.start();
@@ -389,7 +389,7 @@ public abstract class ServerWebSocketTest {
             };
         }
 
-        public Performer serverAction(Action<ServerWebSocket> serverAction) {
+        public Performer onserver(Action<ServerWebSocket> serverAction) {
             this.serverAction = serverAction;
             return this;
         }

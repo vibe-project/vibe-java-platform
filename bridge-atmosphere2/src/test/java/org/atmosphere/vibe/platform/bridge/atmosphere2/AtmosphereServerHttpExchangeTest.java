@@ -50,7 +50,7 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTest {
             @Override
             public void contextInitialized(ServletContextEvent event) {
                 ServletContext context = event.getServletContext();
-                Servlet servlet = new VibeAtmosphereServlet().httpAction(performer.serverAction());
+                Servlet servlet = new VibeAtmosphereServlet().onhttp(performer.serverAction());
                 ServletRegistration.Dynamic reg = context.addServlet(VibeAtmosphereServlet.class.getName(), servlet);
                 reg.setAsyncSupported(true);
                 reg.setInitParameter(ApplicationConfig.DISABLE_ATMOSPHEREINTERCEPTOR, Boolean.TRUE.toString());
@@ -71,7 +71,7 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.unwrap(AtmosphereResource.class), instanceOf(AtmosphereResource.class));
@@ -84,6 +84,6 @@ public class AtmosphereServerHttpExchangeTest extends ServerHttpExchangeTest {
     @Override
     @Test
     @Ignore
-    public void closeAction() {}
+    public void onclose() {}
 
 }

@@ -35,7 +35,7 @@ import org.glassfish.grizzly.websockets.WebSocketApplication;
  * <pre>
  * NetworkListener listener = httpServer.getListener("grizzly");
  * listener.registerAddOn(new WebSocketAddOn());
- * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication().websocketAction(ws -&gt {}));
+ * WebSocketEngine.getEngine().register("", "/vibe", new VibeWebSocketApplication().onwebsocket(ws -&gt {}));
  * </pre>
  *
  * @author Donghwan Kim
@@ -71,7 +71,7 @@ public class VibeWebSocketApplication extends WebSocketApplication {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeWebSocketApplication websocketAction(Action<ServerWebSocket> action) {
+    public VibeWebSocketApplication onwebsocket(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }

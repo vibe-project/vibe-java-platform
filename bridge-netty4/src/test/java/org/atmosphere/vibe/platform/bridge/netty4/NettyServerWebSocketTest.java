@@ -70,7 +70,7 @@ public class NettyServerWebSocketTest extends ServerWebSocketTest {
                         return URI.create(req.getUri()).getPath().equals("/test");
                     }
                 }
-                .websocketAction(performer.serverAction()));
+                .onwebsocket(performer.serverAction()));
             }
         });
         channels.add(bootstrap.bind(port).channel());
@@ -85,7 +85,7 @@ public class NettyServerWebSocketTest extends ServerWebSocketTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerWebSocket>() {
+        performer.onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 assertThat(ws.unwrap(ChannelHandlerContext.class), instanceOf(ChannelHandlerContext.class));

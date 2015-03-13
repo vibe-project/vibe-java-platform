@@ -30,7 +30,7 @@ import org.glassfish.grizzly.http.server.Response;
  * 
  * <pre>
  * ServerConfiguration config = httpServer.getServerConfiguration();
- * config.addHttpHandler(new VibeHttpHandler().httpAction(http -&gt {}), "/vibe");
+ * config.addHttpHandler(new VibeHttpHandler().onhttp(http -&gt {}), "/vibe");
  * </pre>
  *
  * @author Donghwan Kim
@@ -48,7 +48,7 @@ public class VibeHttpHandler extends HttpHandler {
      * Registers an action to be called when {@link ServerHttpExchange} is
      * available.
      */
-    public VibeHttpHandler httpAction(Action<ServerHttpExchange> action) {
+    public VibeHttpHandler onhttp(Action<ServerHttpExchange> action) {
         httpActions.add(action);
         return this;
     }

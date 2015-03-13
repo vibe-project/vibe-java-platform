@@ -91,7 +91,7 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void uri() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.uri(), is("/test?hello=there"));
@@ -103,7 +103,7 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void method() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.method(), is("POST"));
@@ -121,7 +121,7 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void header() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 assertThat(http.headerNames(), either(hasItems("a", "b")).or(hasItems("A", "B")));
@@ -143,17 +143,17 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void read_text() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 final StringBuilder body = new StringBuilder();
-                http.chunkAction(new Action<String>() {
+                http.onchunk(new Action<String>() {
                     @Override
                     public void on(String data) {
                         body.append(data);
                     }
                 })
-                .endAction(new VoidAction() {
+                .onend(new VoidAction() {
                     @Override
                     public void on() {
                         assertThat(body.toString(), is("A Breath Clad In Happiness"));
@@ -174,17 +174,17 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void readAsText() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 final StringBuilder body = new StringBuilder();
-                http.chunkAction(new Action<String>() {
+                http.onchunk(new Action<String>() {
                     @Override
                     public void on(String data) {
                         body.append(data);
                     }
                 })
-                .endAction(new VoidAction() {
+                .onend(new VoidAction() {
                     @Override
                     public void on() {
                         assertThat(body.toString(), is("Day 7: Poem of the Ocean"));
@@ -205,17 +205,17 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void readAsText_charset() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 final StringBuilder body = new StringBuilder();
-                http.chunkAction(new Action<String>() {
+                http.onchunk(new Action<String>() {
                     @Override
                     public void on(String data) {
                         body.append(data);
                     }
                 })
-                .endAction(new VoidAction() {
+                .onend(new VoidAction() {
                     @Override
                     public void on() {
                         assertThat(body.toString(), is("시간 속에 만들어진 무대 위에 그대는 없다"));
@@ -236,11 +236,11 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void read_binary() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 final ByteArrayOutputStream body = new ByteArrayOutputStream();
-                http.chunkAction(new Action<ByteBuffer>() {
+                http.onchunk(new Action<ByteBuffer>() {
                     @Override
                     public void on(ByteBuffer data) {
                         byte[] bytes = new byte[data.remaining()];
@@ -248,7 +248,7 @@ public abstract class ServerHttpExchangeTest {
                         body.write(bytes, 0, bytes.length);
                     }
                 })
-                .endAction(new VoidAction() {
+                .onend(new VoidAction() {
                     @Override
                     public void on() {
                         assertThat(body.toByteArray(), is(new byte[] { 'h', 'i' }));
@@ -269,11 +269,11 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void readAsBinary() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 final ByteArrayOutputStream body = new ByteArrayOutputStream();
-                http.chunkAction(new Action<ByteBuffer>() {
+                http.onchunk(new Action<ByteBuffer>() {
                     @Override
                     public void on(ByteBuffer data) {
                         byte[] bytes = new byte[data.remaining()];
@@ -281,7 +281,7 @@ public abstract class ServerHttpExchangeTest {
                         body.write(bytes, 0, bytes.length);
                     }
                 })
-                .endAction(new VoidAction() {
+                .onend(new VoidAction() {
                     @Override
                     public void on() {
                         assertThat(body.toByteArray(), is(new byte[] { 'h', 'i' }));
@@ -301,11 +301,11 @@ public abstract class ServerHttpExchangeTest {
     }
 
     @Test
-    public void bodyAction_with_text() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+    public void onbody_with_text() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.bodyAction(new Action<String>() {
+                http.onbody(new Action<String>() {
                     @Override
                     public void on(String data) {
                         assertThat(data, is("A Breath Clad In Happiness"));
@@ -325,11 +325,11 @@ public abstract class ServerHttpExchangeTest {
     }
 
     @Test
-    public void bodyAction_with_binary() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+    public void onbody_with_binary() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.bodyAction(new Action<ByteBuffer>() {
+                http.onbody(new Action<ByteBuffer>() {
                     @Override
                     public void on(ByteBuffer data) {
                         assertThat(data, is(ByteBuffer.wrap(new byte[] { 'h', 'i' })));
@@ -350,7 +350,7 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void setStatus() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 http.setStatus(HttpStatus.NOT_FOUND).end();
@@ -368,7 +368,7 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void setHeader() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 http.setHeader("A", "A").setHeader("B", Arrays.asList("B1", "B2")).end();
@@ -390,13 +390,13 @@ public abstract class ServerHttpExchangeTest {
     @Test
     public void write_text() {
         final CountDownLatch latch = new CountDownLatch(1);
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 http.setHeader("content-type", "text/plain; charset=euc-kr")
                 .write("기억 속에 머무른 그 때의 모습으로 그때의 웃음으로")
                 .end()
-                .finishAction(new VoidAction() {
+                .onfinish(new VoidAction() {
                     @Override
                     public void on() {
                         latch.countDown();
@@ -429,10 +429,10 @@ public abstract class ServerHttpExchangeTest {
     @Test
     public void write_text_charset() {
         final CountDownLatch latch = new CountDownLatch(1);
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.finishAction(new VoidAction() {
+                http.onfinish(new VoidAction() {
                     @Override
                     public void on() {
                         latch.countDown();
@@ -466,13 +466,13 @@ public abstract class ServerHttpExchangeTest {
     @Test
     public void write_binary() {
         final CountDownLatch latch = new CountDownLatch(1);
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 http.write(ByteBuffer.wrap(new byte[] { 'h', 'e' }).asReadOnlyBuffer())
                 .write(ByteBuffer.wrap(new byte[] { 'l', 'l' }))
                 .end(ByteBuffer.wrap(new byte[] { 'o' }))
-                .finishAction(new VoidAction() {
+                .onfinish(new VoidAction() {
                     @Override
                     public void on() {
                         latch.countDown();
@@ -506,7 +506,7 @@ public abstract class ServerHttpExchangeTest {
 
     @Test
     public void end() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
                 http.end();
@@ -522,11 +522,11 @@ public abstract class ServerHttpExchangeTest {
     }
 
     @Test
-    public void closeAction() {
-        performer.serverAction(new Action<ServerHttpExchange>() {
+    public void onclose() {
+        performer.onserver(new Action<ServerHttpExchange>() {
             @Override
             public void on(ServerHttpExchange http) {
-                http.closeAction(new VoidAction() {
+                http.onclose(new VoidAction() {
                     @Override
                     public void on() {
                         performer.start();
@@ -578,7 +578,7 @@ public abstract class ServerHttpExchangeTest {
             };
         }
 
-        public Performer serverAction(Action<ServerHttpExchange> serverAction) {
+        public Performer onserver(Action<ServerHttpExchange> serverAction) {
             this.serverAction = serverAction;
             return this;
         }

@@ -33,7 +33,7 @@ public class VertxServerWebSocketTest extends ServerWebSocketTest {
     @Override
     protected void startServer() {
         server = VertxFactory.newVertx().createHttpServer();
-        final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler().websocketAction(performer.serverAction());
+        final VibeWebSocketHandler websocketHandler = new VibeWebSocketHandler().onwebsocket(performer.serverAction());
         server.websocketHandler(new Handler<org.vertx.java.core.http.ServerWebSocket>() {
             @Override
             public void handle(org.vertx.java.core.http.ServerWebSocket socket) {
@@ -52,7 +52,7 @@ public class VertxServerWebSocketTest extends ServerWebSocketTest {
 
     @Test
     public void unwrap() {
-        performer.serverAction(new Action<ServerWebSocket>() {
+        performer.onserver(new Action<ServerWebSocket>() {
             @Override
             public void on(ServerWebSocket ws) {
                 assertThat(ws.unwrap(org.vertx.java.core.http.ServerWebSocket.class),

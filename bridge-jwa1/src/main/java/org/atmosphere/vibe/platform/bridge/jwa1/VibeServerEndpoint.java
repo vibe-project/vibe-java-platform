@@ -37,7 +37,7 @@ import org.atmosphere.vibe.platform.websocket.ServerWebSocket;
  * .configurator(new Configurator() {
  *     {@literal @}Override
  *     protected &ltT&gt T getEndpointInstance(Class&ltT&gt endpointClass) throws InstantiationException {
- *         return endpointClass.cast(new VibeServerEndpoint().websocketAction(ws -&gt {}));
+ *         return endpointClass.cast(new VibeServerEndpoint().onwebsocket(ws -&gt {}));
  *     }
  * })
  * .build();
@@ -73,7 +73,7 @@ public class VibeServerEndpoint extends Endpoint {
      * Registers an action to be called when {@link ServerWebSocket} is
      * available.
      */
-    public VibeServerEndpoint websocketAction(Action<ServerWebSocket> action) {
+    public VibeServerEndpoint onwebsocket(Action<ServerWebSocket> action) {
         wsActions.add(action);
         return this;
     }
