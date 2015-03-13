@@ -15,11 +15,11 @@
  */
 package org.atmosphere.vibe.platform.bridge.grizzly2;
 
-import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerHttpExchangeTest;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
 
-public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
+public class GrizzlyServerHttpExchangeTest extends ServerHttpExchangeTest {
     
     HttpServer server;
 

@@ -19,7 +19,7 @@ import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.ConcurrentActions;
 import org.atmosphere.vibe.platform.action.Actions.Options;
 
-public class ConcurrentActionsTest extends ActionsTestTemplate {
+public class ConcurrentActionsTest extends ActionsTest {
 
     @Override
     protected <T> Actions<T> createActions() {

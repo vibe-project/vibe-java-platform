@@ -27,14 +27,14 @@ import javax.servlet.ServletRegistration;
 import org.atmosphere.cpr.ApplicationConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Test;
 
-public class AtmosphereServerWebSocketTest extends ServerWebSocketTestTemplate {
+public class AtmosphereServerWebSocketTest extends ServerWebSocketTest {
 
     Server server;
 

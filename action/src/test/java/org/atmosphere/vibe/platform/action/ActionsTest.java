@@ -31,7 +31,7 @@ import org.atmosphere.vibe.platform.action.VoidAction;
 import org.atmosphere.vibe.platform.action.Actions.Options;
 import org.junit.Test;
 
-public abstract class ActionsTestTemplate {
+public abstract class ActionsTest {
 
     @Test
     public void options() {

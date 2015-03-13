@@ -28,14 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
-import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerHttpExchangeTest;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ServletServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
+public class ServletServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     Server server;
 

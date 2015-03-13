@@ -20,14 +20,14 @@ import static org.junit.Assert.assertThat;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
-import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerHttpExchangeTest;
 import org.junit.Test;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
-public class VertxServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
+public class VertxServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     HttpServer server;
 

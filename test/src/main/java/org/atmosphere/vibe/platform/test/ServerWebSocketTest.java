@@ -42,7 +42,7 @@ import org.junit.rules.Timeout;
  *
  * @author Donghwan Kim
  */
-public abstract class ServerWebSocketTestTemplate {
+public abstract class ServerWebSocketTest {
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10);
@@ -64,7 +64,7 @@ public abstract class ServerWebSocketTestTemplate {
     }
 
     /**
-     * Starts the server listening port {@link ServerWebSocketTestTemplate#port}
+     * Starts the server listening port {@link ServerWebSocketTest#port}
      * and if WebSocket's path is {@code /test}, create {@link ServerWebSocket}
      * and pass it to {@code performer.serverAction()}. This method is executed
      * following {@link Before}.
@@ -73,7 +73,7 @@ public abstract class ServerWebSocketTestTemplate {
 
     /**
      * Stops the server started in
-     * {@link ServerWebSocketTestTemplate#startServer()}. This method is
+     * {@link ServerWebSocketTest#startServer()}. This method is
      * executed following {@link After}.
      *
      * @throws Exception

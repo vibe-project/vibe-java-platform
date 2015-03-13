@@ -24,7 +24,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -32,7 +32,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.junit.Test;
 
-public class JwaServerWebSocketTest extends ServerWebSocketTestTemplate {
+public class JwaServerWebSocketTest extends ServerWebSocketTest {
 
     Server server;
 

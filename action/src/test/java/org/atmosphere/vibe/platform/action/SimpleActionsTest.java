@@ -19,7 +19,7 @@ import org.atmosphere.vibe.platform.action.Actions;
 import org.atmosphere.vibe.platform.action.SimpleActions;
 import org.atmosphere.vibe.platform.action.Actions.Options;
 
-public class SimpleActionsTest extends ActionsTestTemplate {
+public class SimpleActionsTest extends ActionsTest {
 
     @Override
     protected <T> Actions<T> createActions() {

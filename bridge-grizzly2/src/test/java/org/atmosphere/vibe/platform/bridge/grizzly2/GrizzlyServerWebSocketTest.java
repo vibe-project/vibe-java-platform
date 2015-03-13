@@ -15,13 +15,13 @@
  */
 package org.atmosphere.vibe.platform.bridge.grizzly2;
 
-import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.websockets.WebSocketAddOn;
 import org.glassfish.grizzly.websockets.WebSocketEngine;
 
-public class GrizzlyServerWebSocketTest extends ServerWebSocketTestTemplate {
+public class GrizzlyServerWebSocketTest extends ServerWebSocketTest {
 
     HttpServer server;
 

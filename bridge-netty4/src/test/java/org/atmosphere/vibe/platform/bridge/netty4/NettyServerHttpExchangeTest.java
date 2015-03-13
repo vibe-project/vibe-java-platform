@@ -36,10 +36,10 @@ import java.net.URI;
 
 import org.atmosphere.vibe.platform.action.Action;
 import org.atmosphere.vibe.platform.http.ServerHttpExchange;
-import org.atmosphere.vibe.platform.test.ServerHttpExchangeTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerHttpExchangeTest;
 import org.junit.Test;
 
-public class NettyServerHttpExchangeTest extends ServerHttpExchangeTestTemplate {
+public class NettyServerHttpExchangeTest extends ServerHttpExchangeTest {
 
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;

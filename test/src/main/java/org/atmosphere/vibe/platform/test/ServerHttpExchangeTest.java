@@ -50,7 +50,7 @@ import org.junit.rules.Timeout;
  *
  * @author Donghwan Kim
  */
-public abstract class ServerHttpExchangeTestTemplate {
+public abstract class ServerHttpExchangeTest {
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10);
@@ -73,7 +73,7 @@ public abstract class ServerHttpExchangeTestTemplate {
 
     /**
      * Starts the server listening port
-     * {@link ServerHttpExchangeTestTemplate#port} and if HTTP request's path is
+     * {@link ServerHttpExchangeTest#port} and if HTTP request's path is
      * {@code /test}, create {@link ServerHttpExchange} and pass it to
      * {@code performer.serverAction()}. This method is executed following
      * {@link Before}.
@@ -82,7 +82,7 @@ public abstract class ServerHttpExchangeTestTemplate {
 
     /**
      * Stops the server started in
-     * {@link ServerHttpExchangeTestTemplate#startServer()}. This method is
+     * {@link ServerHttpExchangeTest#startServer()}. This method is
      * executed following {@link After}.
      *
      * @throws Exception

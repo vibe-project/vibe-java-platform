@@ -19,14 +19,14 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.junit.Test;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 
-public class VertxServerWebSocketTest extends ServerWebSocketTestTemplate {
+public class VertxServerWebSocketTest extends ServerWebSocketTest {
 
     HttpServer server;
 

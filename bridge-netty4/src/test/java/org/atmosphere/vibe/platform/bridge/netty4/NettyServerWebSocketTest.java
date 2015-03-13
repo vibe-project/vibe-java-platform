@@ -36,11 +36,11 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.URI;
 
 import org.atmosphere.vibe.platform.action.Action;
-import org.atmosphere.vibe.platform.test.ServerWebSocketTestTemplate;
+import org.atmosphere.vibe.platform.test.ServerWebSocketTest;
 import org.atmosphere.vibe.platform.ws.ServerWebSocket;
 import org.junit.Test;
 
-public class NettyServerWebSocketTest extends ServerWebSocketTestTemplate {
+public class NettyServerWebSocketTest extends ServerWebSocketTest {
 
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
